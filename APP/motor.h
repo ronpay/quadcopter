@@ -8,6 +8,6 @@
 void Motor_Config(void);
 void Motor_Unlock(void);
 void Motor_Test(void);
-void Motor_Set(double percentage, uint8_t channel);
+void Motor_Set(short percentage, uint8_t channel);
 
 #endif

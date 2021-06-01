@@ -8,6 +8,7 @@
  */
 
 #include "sysTick.h"
+#include "ucos_ii.h"
 
 static __IO u32 TimingDelay;
 static __IO uint32_t g_ul_ms_ticks = 0;
@@ -37,12 +38,14 @@ void SysTick_Init(void) {
  */
 
 void Delay_ms(__IO u32 nTime) {
-    TimingDelay = nTime;
-
+	TimingDelay = nTime;
+	if (OSRunning == 1){ //当os开始运行才跑这个
+		OSTimeDly(TimingDelay);
+	}else{
     while (TimingDelay != 0)
         ;
+	}
 }
-
 /**
  * @brief   s延时程序
  * @param

@@ -10,37 +10,38 @@
 
 volatile uint32_t CapVal[6] = {0};      //第一次下降沿计数值
 volatile uint8_t captureFlag[6] = {0};  //捕获状态
-double Duty[6] = {0};
+extern short Duty[6] ;
 int Receiver_Delay[6] = {0};
-u8 hm_flag = '2';
+u8 hm_flag = '0';
 const float Cycle = 20000;
 extern uint32_t Task_Delay[];
+extern int close_systick_flag;
 
 void USART6_IRQHandler(void) {
     if (USART_GetITStatus(USART6, USART_IT_RXNE) != RESET) {
         hm_flag = USART_ReceiveData(USART6);
         if (hm_flag == '0') {
-            printf("Ble is printing the data of mpu6050");
+            printf("Ble is printing the data of mpu6050\n");
         } else if (hm_flag == '1') {
-            printf("Ble is printing the data of reciver");
+            printf("Ble is printing the data of reciver\n");
         } else if (hm_flag == '2') {
-            ;
+            
         } else {
-            printf("Wrong input, please enter 0 or 1, without CR/LF");
+            printf("Wrong input, please enter 0 or 1, without CR/LF\n");
         }
     }
 }
 
-void SysTick_Handler(void) {
-    TimingDelay_Decrement();
+//void SysTick_Handler(void) {
+//    TimingDelay_Decrement();
 
-    uint8_t i;
-    for (i = 0; i < NumOfTask; i++) {
-        if (Task_Delay[i]) {
-            Task_Delay[i]--;
-        }
-    }
-}
+//    uint8_t i;
+//    for (i = 0; i < NumOfTask; i++) {
+//        if (Task_Delay[i]) {
+//            Task_Delay[i]--;
+//        }
+//    }
+//}
 
 void TIM3_IRQHandler(void) {
     int receiverNum;
@@ -142,11 +143,13 @@ void HardFault_Handler(void) {
 }
 
 void OS_CPU_SysTickHandler(void)
-{
+{	
 	if (OSRunning == 1) //当os开始运行才跑这个
 	{
 		OSIntEnter(); //进入中断
 		OSTimeTick(); //调用ucos的时钟服务器
 		OSIntExit();  //触发任务切换软中断
+	}else{
+		TimingDelay_Decrement();
 	}
 }
