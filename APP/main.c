@@ -65,9 +65,10 @@ void LED_Init(void)
 int main()
 {	
 	SystemClock_Config();
+	
     LED_Init();
-	RCC_ClocksTypeDef get_rcc_clock;
-    RCC_GetClocksFreq(&get_rcc_clock);
+//	RCC_ClocksTypeDef get_rcc_clock;
+//  RCC_GetClocksFreq(&get_rcc_clock);
 
 	OSInit();
 	OSTaskCreate(LED_ON_TASK, (void *)0, (void *)&LED_ON_TASK_STK[LED_ON_STK_SIZE - 1], LED_ON_TASK_PRIO);
