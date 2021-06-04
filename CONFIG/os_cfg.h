@@ -39,7 +39,7 @@
 #define OS_LOWEST_PRIO           63u   /* Defines the lowest priority that can be assigned ...         */
                                        /* ... MUST NEVER be higher than 254!                           */
 
-#define OS_MAX_EVENTS             0u   /* Max. number of event control blocks in your application      */
+#define OS_MAX_EVENTS            20u   /* Max. number of event control blocks in your application      */
 #define OS_MAX_FLAGS              5u   /* Max. number of Event Flag Groups    in your application      */
 #define OS_MAX_MEM_PART           5u   /* Max. number of memory partitions                             */
 #define OS_MAX_QS                 4u   /* Max. number of queue control blocks in your application      */
@@ -61,7 +61,7 @@
 #define OS_TASK_CHANGE_PRIO_EN    0u   /*     Include code for OSTaskChangePrio()                      */
 #define OS_TASK_CREATE_EN         1u   /*     Include code for OSTaskCreate()                          */
 #define OS_TASK_CREATE_EXT_EN     0u   /*     Include code for OSTaskCreateExt()                       */
-#define OS_TASK_DEL_EN            0u   /*     Include code for OSTaskDel()                             */
+#define OS_TASK_DEL_EN            1u   /*     Include code for OSTaskDel()                             */
 #define OS_TASK_NAME_EN           0u   /*     Enable task names                                        */
 #define OS_TASK_PROFILE_EN        0u   /*     Include variables in OS_TCB for profiling                */
 #define OS_TASK_QUERY_EN          0u   /*     Include code for OSTaskQuery()                           */
@@ -118,7 +118,7 @@
 
 
                                        /* ------------------------ SEMAPHORES ------------------------ */
-#define OS_SEM_EN                 0u   /* Enable (1) or Disable (0) code generation for SEMAPHORES     */
+#define OS_SEM_EN                 1u   /* Enable (1) or Disable (0) code generation for SEMAPHORES     */
 #define OS_SEM_ACCEPT_EN          0u   /*    Include code for OSSemAccept()                            */
 #define OS_SEM_DEL_EN             0u   /*    Include code for OSSemDel()                               */
 #define OS_SEM_PEND_ABORT_EN      0u   /*    Include code for OSSemPendAbort()                         */

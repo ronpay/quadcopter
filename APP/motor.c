@@ -15,11 +15,11 @@ void Motor_Unlock(void) {
     Delay_ms(2000);
 }
 
-void Motor_Set(short percentage, uint8_t channel) {
+void Motor_Set(double percentage, uint8_t channel) {
     int tmp = (int)percentage;
     switch (channel) {
         case 1:
-			printf("%d\n",tmp);
+//			printf("%d\n",tmp);
             TIM_SetCompare1(TIM2, tmp);
             break;
         case 2:

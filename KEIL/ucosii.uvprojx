@@ -183,7 +183,7 @@
             <hadIRAM>1</hadIRAM>
             <hadXRAM>0</hadXRAM>
             <uocXRam>0</uocXRam>
-            <RvdsVP>2</RvdsVP>
+            <RvdsVP>1</RvdsVP>
             <RvdsMve>0</RvdsMve>
             <RvdsCdeCp>0</RvdsCdeCp>
             <hadIRAM2>0</hadIRAM2>
@@ -339,7 +339,7 @@
               <MiscControls></MiscControls>
               <Define>STM32F401xx,USE_STDPERIPH_DRIVER</Define>
               <Undefine></Undefine>
-              <IncludePath>..\BSP;..\CONFIG;..\CORE;..\PORT;..\BSP\inc;..\LIB\inc;..\APP;..\HAL</IncludePath>
+              <IncludePath>..\BSP;..\CONFIG;..\CORE;..\PORT;..\BSP\inc;..\LIB\inc;..\APP;..\HAL;..\uC-LIB;..\uC-CPU</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -383,11 +383,6 @@
         <Group>
           <GroupName>CORE</GroupName>
           <Files>
-            <File>
-              <FileName>os_cfg_r.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\CORE\os_cfg_r.h</FilePath>
-            </File>
             <File>
               <FileName>os_core.c</FileName>
               <FileType>1</FileType>
@@ -489,6 +484,11 @@
           <GroupName>BSP</GroupName>
           <Files>
             <File>
+              <FileName>stm32f4xx_it.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\HAL\stm32f4xx_it.c</FilePath>
+            </File>
+            <File>
               <FileName>startup_stm32f401xx.s</FileName>
               <FileType>2</FileType>
               <FilePath>..\BSP\src\startup_stm32f401xx.s</FilePath>
@@ -503,6 +503,11 @@
         <Group>
           <GroupName>APP</GroupName>
           <Files>
+            <File>
+              <FileName>sysTick.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\HAL\sysTick.c</FilePath>
+            </File>
             <File>
               <FileName>main.c</FileName>
               <FileType>1</FileType>
@@ -732,16 +737,6 @@
               <FileName>i2c.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\HAL\i2c.c</FilePath>
-            </File>
-            <File>
-              <FileName>stm32f4xx_it.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\HAL\stm32f4xx_it.c</FilePath>
-            </File>
-            <File>
-              <FileName>sysTick.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\HAL\sysTick.c</FilePath>
             </File>
             <File>
               <FileName>tim.c</FileName>
