@@ -23,7 +23,7 @@ float Temp;
 short Me[3];
 
 #define INIT_TASK_PRIO 5
-#define HM10_TASK_PRIO 63
+#define HM10_TASK_PRIO 30
 #define RECEIVER_TASK_PRIO 15
 #define GY86_TASK_PRIO 20
 #define MOTOR_TASK_PRIO 10
@@ -58,7 +58,7 @@ void INIT_TASK(void *pdata){
     OLED_CLS();
 	
 	Motor_Config();
-    Motor_Unlock();
+	Motor_Unlock();
 	
 	Receiver_Config();
 	
@@ -70,24 +70,26 @@ void INIT_TASK(void *pdata){
 
 void HM10_TASK(void *pdata){
 	INT8U err;
-	if(hm_flag == '0'){
-		OSSemPend(SensorSem,1000,&err);
-		
-		printf("Acceleration: %8d%8d%8d\n", Acel[0], Acel[1], Acel[2]);
-		printf("Gyroscope:    %8d%8d%8d\n", Gyro[0], Gyro[1], Gyro[2]);
-		printf("Temperature:  %8.2f\n", Temp);
-		printf("MagneticField:%8d%8d%8d\n", Me[0], Me[1], Me[2]);
-		
-		OSSemPost(SensorSem);
-	}
-	OSSemPend(ReceiverSem,1000,&err);
-	for (int i = 0; i < 6; i++) {
-		if (Duty[i] > 0.01) {
-			printf("CH%i:%.2f %% \n", i + 1, Duty[i]/100);
+	while(1){
+		if(hm_flag == '0'){
+			OSSemPend(SensorSem,1000,&err);
+			
+			printf("Acceleration: %8d%8d%8d\n", Acel[0], Acel[1], Acel[2]);
+			printf("Gyroscope:    %8d%8d%8d\n", Gyro[0], Gyro[1], Gyro[2]);
+			printf("Temperature:  %8.2f\n", Temp);
+			printf("MagneticField:%8d%8d%8d\n", Me[0], Me[1], Me[2]);
+			
+			OSSemPost(SensorSem);
 		}
+		OSSemPend(ReceiverSem,1000,&err);
+		for (int i = 0; i < 6; i++) { 
+		//		if (Duty[i] > 0.01) {
+				printf("CH%i:%.2f %% \n", i + 1, Duty[i]/100);
+		//		}
+		}
+		OSSemPost(ReceiverSem);
+		OSTimeDly(200);
 	}
-	OSSemPost(ReceiverSem);
-	OSTimeDly(200);
 }
 
 void RECEIVER_TASK(void *pdata){
@@ -142,7 +144,7 @@ void OLED_TASK(void *pdata){
 		
 		OSSemPost(ReceiverSem);
 		
-		OSTimeDly(400);
+		OSTimeDly(500);
 	}
 }
 
@@ -186,11 +188,11 @@ int main()
 
 	OSTaskCreate(HM10_TASK, (void *)0, (void *)&HM10_TASK_STK[HM10_STK_SIZE - 1], HM10_TASK_PRIO);
 	OSTaskCreate(INIT_TASK, (void *)0, (void *)&INIT_TASK_STK[INIT_STK_SIZE - 1], INIT_TASK_PRIO);
-//	OSTaskCreate(RECEIVER_TASK, (void *)0, (void *)&RECEIVER_TASK_STK[RECEIVER_STK_SIZE - 1], RECEIVER_TASK_PRIO);
+	OSTaskCreate(RECEIVER_TASK, (void *)0, (void *)&RECEIVER_TASK_STK[RECEIVER_STK_SIZE - 1], RECEIVER_TASK_PRIO);
 	OSTaskCreate(GY86_TASK, (void *)0, (void *)&GY86_TASK_STK[GY86_STK_SIZE - 1], GY86_TASK_PRIO);
 	OSTaskCreate(MOTOR_TASK, (void *)0, (void *)&MOTOR_TASK_STK[MOTOR_STK_SIZE - 1], MOTOR_TASK_PRIO);
 	OSTaskCreate(OLED_TASK, (void *)0, (void *)&OLED_TASK_STK[OLED_STK_SIZE - 1], OLED_TASK_PRIO);
-	OSTaskCreate(TEST_TASK, (void *)0, (void *)&TEST_TASK_STK[TEST_STK_SIZE - 1], TEST_TASK_PRIO);
+//	OSTaskCreate(TEST_TASK, (void *)0, (void *)&TEST_TASK_STK[TEST_STK_SIZE - 1], TEST_TASK_PRIO);
 	
 	
 	OSStart();
