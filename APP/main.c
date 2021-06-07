@@ -165,14 +165,6 @@ void SystemClock_Config()
 	 SysTick_Config(SystemCoreClock/1000);
 }
 
-void LED_Init(void)
-{    	 
-	// 配置RCC寄存器，使能GPIOA时钟
-	*(unsigned int *)0x40023830 |= 1;
-	
-	// 配置MODER寄存器，配置为通用输出
-	*(unsigned int *)0x40020000 |= (1<<(5*2));
-}
 
 int main()
 {	
