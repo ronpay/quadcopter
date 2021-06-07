@@ -6,11 +6,19 @@
 
 
 void USART6_IRQHandler(void) {
+	OSIntEnter();
+	
 	HM10_IRQ_IRQHandler();
+	
+	OSIntExit();   
 }
 
 void TIM3_IRQHandler(void) {
+	OSIntEnter();
+	
 	Receiver_IRQ_Handler();
+	
+	OSIntExit();   
 }
 
 void HardFault_Handler(void) {
