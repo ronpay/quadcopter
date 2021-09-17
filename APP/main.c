@@ -16,7 +16,9 @@ extern u8 hm_flag;
 double Duty[6];
 
 //GY86 所需要的数组
+float Acel_g[3];
 short Acel[3];
+float Gyro_g[3];
 short Gyro[3];
 float Temp;
 short Me[3];
@@ -73,7 +75,7 @@ void HM10_TASK(void *pdata){
 		if(hm_flag == '0'){
 			OSSemPend(SensorSem,1000,&err);
 			
-			printf("Acceleration: %8d%8d%8d\n", Acel[0], Acel[1], Acel[2]);
+			printf("Acceleration: %3f %3f %3f\n", Acel_g[0], Acel_g[1], Acel_g[2]);
 			printf("Gyroscope:    %8d%8d%8d\n", Gyro[0], Gyro[1], Gyro[2]);
 			printf("Temperature:  %8.2f\n", Temp);
 			printf("MagneticField:%8d%8d%8d\n", Me[0], Me[1], Me[2]);
@@ -102,6 +104,9 @@ void GY86_TASK(void *pdata){
 		OSSemPend(SensorSem,1000,&err);
 		
 		MPU6050ReadAcc(Acel);
+		for(int i=0;i<3;i++){
+			Acel_g[i]=(float)Acel[i]/8192;
+		}
 		MPU6050ReadGyro(Gyro);
 		MPU6050_ReturnTemp(&Temp);
 		HMC5884LReadMe(Me);
@@ -129,7 +134,7 @@ void OLED_TASK(void *pdata){
 	while(1){
 		OSSemPend(SensorSem,1000,&err);
 		
-		OLED_Show_3num(Acel[0], Acel[1], Acel[2], 1);
+		OLED_Show_3num((int)Acel_g[0]*100, (int)Acel_g[1]*100, (int)Acel_g[2]*100, 1);
 		OLED_Show_3num(Gyro[0], Gyro[1], Gyro[2], 0);
 		OLED_ShowNum(24, 7, Temp, 2, 12);
 		OLED_Show_3num(Me[0], Me[1], Me[2], 2);

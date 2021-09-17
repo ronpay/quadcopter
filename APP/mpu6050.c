@@ -52,7 +52,7 @@ void MPU6050_Init(void) {
     MPU6050_WriteReg(MPU6050_RA_SMPLRT_DIV, 0x07);  //陀螺仪采样率
     MPU6050_WriteReg(MPU6050_RA_CONFIG, 0x06);
     MPU6050_WriteReg(MPU6050_RA_ACCEL_CONFIG,
-                     0x01);  //配置加速度传感器工作在16G模式
+                     0x01<<3);  //配置加速度传感器工作在+-4G模式
     MPU6050_WriteReg(
         MPU6050_RA_GYRO_CONFIG,
         0x18);  //陀螺仪自检及测量范围，典型值：0x18(不自检，2000deg/s)
