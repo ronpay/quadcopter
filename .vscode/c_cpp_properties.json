@@ -1,0 +1,19 @@
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            "includePath": [
+                "${workspaceFolder}/**"
+
+            ],
+            "defines": [
+                "STM32F401xx",
+                "USE_STDPERIPH_DRIVER"
+            ],
+            "cStandard": "c99",
+            "cppStandard": "c++03",
+            "intelliSenseMode": "linux-gcc-x64"
+        }
+    ],
+    "version": 4
+}
