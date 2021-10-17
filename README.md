@@ -1,4 +1,4 @@
-# STM32F401-ucosII-project
+# quadcopter
 
 A project that transplanting the μC/OS-II System to STM32F401 board. 
 
