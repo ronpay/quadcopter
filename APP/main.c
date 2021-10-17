@@ -178,9 +178,10 @@ int main()
 	RCC_GetClocksFreq(&get_rcc_clock);
 //	SysTick_Init();
 	
-	SensorSem=OSSemCreate(1);
-	ReceiverSem=OSSemCreate(1);
 	OSInit();
+
+    SensorSem=OSSemCreate(1);
+	ReceiverSem=OSSemCreate(1);
 
 	OSTaskCreate(HM10_TASK, (void *)0, (void *)&HM10_TASK_STK[HM10_STK_SIZE - 1], HM10_TASK_PRIO);
 	OSTaskCreate(INIT_TASK, (void *)0, (void *)&INIT_TASK_STK[INIT_STK_SIZE - 1], INIT_TASK_PRIO);
