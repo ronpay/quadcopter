@@ -127,3 +127,12 @@ void MPU6050_ReturnTemp(float *Temperature) {
     temp3 = (buf[0] << 8) | buf[1];
     *Temperature = ((double)temp3 / 340.0) + 36.53;
 }
+
+int MPU_DMP_Read_Len(uint8_t addr,uint8_t reg,uint8_t len,uint8_t *buf){
+    I2C_ReadData(I2C1,addr<<1,reg,buf,len);
+    return 0;
+}
+int MPU_DMP_Write_Len(uint8_t addr,uint8_t reg,uint8_t len,uint8_t *buf){
+    I2C_WriteByte_Len(I2C1, addr<<1,reg, buf, len);
+    return 0;
+}

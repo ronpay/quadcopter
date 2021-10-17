@@ -61,6 +61,6 @@ void I2C1_Init(void);
 void I2C_WriteByte(I2C_TypeDef * I2Cx,uint8_t slave_addr,uint8_t reg_addr, uint8_t data);
 void I2C_ReadData(I2C_TypeDef * I2Cx,uint8_t slave_addr, uint8_t reg_addr, uint8_t *pBuffer,uint16_t NumByteToRead);
 
-void I2C_WriteByte_Len(I2C_TypeDef *I2Cx, uint8_t slave_addr, uint8_t reg_addr, uint8_t data, uint8_t size);
+void I2C_WriteByte_Len(I2C_TypeDef *I2Cx, uint8_t slave_addr, uint8_t reg_addr, uint8_t *data, uint8_t size);
 
 #endif  // __I2C_H__

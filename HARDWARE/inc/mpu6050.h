@@ -384,6 +384,9 @@ uint8_t MPU6050ReadID(void);
 void MPU6050_ReadData(u8 reg_add, unsigned char *Read, u8 num);
 void MPU6050_WriteReg(u8 reg_add, u8 reg_dat);
 
+int MPU_DMP_Read_Len(uint8_t addr,uint8_t reg,uint8_t len,uint8_t *buf);
+int MPU_DMP_Write_Len(uint8_t addr,uint8_t reg,uint8_t len,uint8_t *buf);
+
 void MPU6050_PWR_MGMT_1_INIT(void);
 
 #endif

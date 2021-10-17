@@ -339,7 +339,7 @@
               <MiscControls></MiscControls>
               <Define>STM32F401xx,USE_STDPERIPH_DRIVER</Define>
               <Undefine></Undefine>
-              <IncludePath>..\uC-LIB;..\uC-CPU;..\APP;..\BSP\inc;..\CORE\inc;..\LIB\inc;..\HARDWARE\inc;..\uCOS-II\CONFIG;..\uCOS-II\CORE;..\uCOS-II\PORT</IncludePath>
+              <IncludePath>..\uC-LIB;..\uC-CPU;..\APP;..\BSP\inc;..\CORE\inc;..\LIB\inc;..\HARDWARE\inc;..\uCOS-II\CONFIG;..\uCOS-II\CORE;..\uCOS-II\PORT;..\DMP</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -722,6 +722,21 @@
               <FileName>os_cpu_a.asm</FileName>
               <FileType>2</FileType>
               <FilePath>..\uCOS-II\PORT\os_cpu_a.asm</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>DMP</GroupName>
+          <Files>
+            <File>
+              <FileName>inv_mpu.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\DMP\inv_mpu.c</FilePath>
+            </File>
+            <File>
+              <FileName>inv_mpu_dmp_motion_driver.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\DMP\inv_mpu_dmp_motion_driver.c</FilePath>
             </File>
           </Files>
         </Group>

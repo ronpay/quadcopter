@@ -130,9 +130,9 @@ void I2C_WriteByte(I2C_TypeDef * I2Cx,uint8_t slave_addr,uint8_t reg_addr, uint8
     I2C_GenerateSTOP(I2Cx, ENABLE);  //关闭I2Cx总线
 }
 
-void I2C_WriteByte_Len(I2C_TypeDef *I2Cx, uint8_t slave_addr, uint8_t reg_addr, uint8_t data, uint8_t size){
+void I2C_WriteByte_Len(I2C_TypeDef *I2Cx, uint8_t slave_addr, uint8_t reg_addr, uint8_t *data, uint8_t size){
     for (int i = 0; i < size;i++){
-        I2C_WriteByte(I2Cx, slave_addr, reg_addr + i, data + i);
+        I2C_WriteByte(I2Cx, slave_addr, reg_addr + i, *(data + i));
     }
 }
 

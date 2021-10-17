@@ -25,7 +25,7 @@
 #include "dmpmap.h"
 #include "usart.h"
 #include "i2c.h"
-#include "main.h"
+#include "mpu6050.h"
 
 //定义目标板采用MSP430
 #define  MOTION_DRIVER_TARGET_MSP430
@@ -41,7 +41,7 @@
 #if defined MOTION_DRIVER_TARGET_MSP430
 //#include "msp430.h"
 //#include "msp430_clock.h"
-#define delay_ms    HAL_Delay
+#define delay_ms    Delay_ms
 #define get_ms      mget_ms
 #define log_i 		printf
 #define log_e  		printf

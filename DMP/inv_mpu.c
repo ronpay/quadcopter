@@ -24,10 +24,9 @@
 #include <math.h>
 #include "inv_mpu.h"
 #include "inv_mpu_dmp_motion_driver.h"
-#include "gy-86.h"
 #include "i2c.h"
 #include "usart.h"
-#include "main.h"
+#include "mpu6050.h"
 
 
 #define MPU6050							//定义我们使用的传感器为MPU6050
@@ -51,9 +50,9 @@
 //#include "msp430_clock.h"
 //#include "msp430_interrupt.h"
 
-#define i2c_write   MPU_Write_Len
-#define i2c_read    MPU_Read_Len
-#define delay_ms    HAL_Delay
+#define i2c_write   MPU_DMP_Write_Len
+#define i2c_read    MPU_DMP_Read_Len
+#define delay_ms    Delay_ms
 #define get_ms      mget_ms
 //static inline int reg_int_cb(struct int_param_s *int_param)
 //{

@@ -8,6 +8,7 @@
 #include "oled.h"
 #include "receiver.h"
 #include "sysTick.h"
+#include "inv_mpu.h"
 
 OS_EVENT *SensorSem;
 OS_EVENT *ReceiverSem;
@@ -22,6 +23,7 @@ float Gyro_g[3];
 short Gyro[3];
 float Temp;
 short Me[3];
+float pitch, roll, yaw;
 
 #define INIT_TASK_PRIO 5
 #define HM10_TASK_PRIO 30
@@ -63,9 +65,14 @@ void INIT_TASK(void *pdata){
 	
 //	Receiver_Config();
 	
-	GY86_Init();
+	MPU6050_Config();
+//    MPU6050_Init();
+
+    mpu_dmp_init();
 	
-	OSTaskDel(INIT_TASK_PRIO);
+	//GY86_Init();
+
+    // OSTaskDel(INIT_TASK_PRIO);
 }
 
 
@@ -75,6 +82,7 @@ void HM10_TASK(void *pdata){
 		if(hm_flag == '0'){
 			OSSemPend(SensorSem,1000,&err);
 			
+            printf("Euler angles: %3f %3f %3f\n", pitch, roll, yaw);
 			printf("Acceleration: %3f %3f %3f\n", Acel_g[0], Acel_g[1], Acel_g[2]);
 			printf("Gyroscope:    %8d%8d%8d\n", Gyro[0], Gyro[1], Gyro[2]);
 			printf("Temperature:  %8.2f\n", Temp);
@@ -110,6 +118,8 @@ void GY86_TASK(void *pdata){
 		MPU6050ReadGyro(Gyro);
 		MPU6050_ReturnTemp(&Temp);
 		HMC5884LReadMe(Me);
+
+        mpu_dmp_get_data(&pitch,&roll,&yaw);
 
 		OSSemPost(SensorSem);
 		
@@ -177,14 +187,16 @@ int main()
 	RCC_ClocksTypeDef get_rcc_clock;
 	RCC_GetClocksFreq(&get_rcc_clock);
 //	SysTick_Init();
-	
-	OSInit();
+
+    INIT_TASK(NULL);
+
+    OSInit();
 
     SensorSem=OSSemCreate(1);
 	ReceiverSem=OSSemCreate(1);
 
 	OSTaskCreate(HM10_TASK, (void *)0, (void *)&HM10_TASK_STK[HM10_STK_SIZE - 1], HM10_TASK_PRIO);
-	OSTaskCreate(INIT_TASK, (void *)0, (void *)&INIT_TASK_STK[INIT_STK_SIZE - 1], INIT_TASK_PRIO);
+//	OSTaskCreate(INIT_TASK, (void *)0, (void *)&INIT_TASK_STK[INIT_STK_SIZE - 1], INIT_TASK_PRIO);
 //	OSTaskCreate(RECEIVER_TASK, (void *)0, (void *)&RECEIVER_TASK_STK[RECEIVER_STK_SIZE - 1], RECEIVER_TASK_PRIO);
 	OSTaskCreate(GY86_TASK, (void *)0, (void *)&GY86_TASK_STK[GY86_STK_SIZE - 1], GY86_TASK_PRIO);
 //	OSTaskCreate(MOTOR_TASK, (void *)0, (void *)&MOTOR_TASK_STK[MOTOR_STK_SIZE - 1], MOTOR_TASK_PRIO);
