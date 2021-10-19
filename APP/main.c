@@ -28,7 +28,7 @@ float pitch, roll, yaw;
 #define INIT_TASK_PRIO 5
 #define HM10_TASK_PRIO 30
 #define RECEIVER_TASK_PRIO 15
-#define GY86_TASK_PRIO 20
+#define GY86_TASK_PRIO 7
 #define MOTOR_TASK_PRIO 10
 #define OLED_TASK_PRIO 25
 #define TEST_TASK_PRIO 62
@@ -68,8 +68,8 @@ void INIT_TASK(void *pdata){
 	MPU6050_Config();
 //    MPU6050_Init();
 
-    mpu_dmp_init();
-	
+    int ret=mpu_dmp_init();
+	printf("ret:%d\n",ret);
 	//GY86_Init();
 
     // OSTaskDel(INIT_TASK_PRIO);
@@ -189,7 +189,13 @@ int main()
 //	SysTick_Init();
 
     INIT_TASK(NULL);
-
+	while(1){
+		printf("next:\n");
+		mpu_dmp_get_data(&pitch,&roll,&yaw);
+		printf("Euler angles: %3f %3f %3f\n", pitch, roll, yaw);
+		Delay_ms(100);
+	}
+	
     OSInit();
 
     SensorSem=OSSemCreate(1);

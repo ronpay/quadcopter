@@ -131,9 +131,31 @@ void I2C_WriteByte(I2C_TypeDef * I2Cx,uint8_t slave_addr,uint8_t reg_addr, uint8
 }
 
 void I2C_WriteByte_Len(I2C_TypeDef *I2Cx, uint8_t slave_addr, uint8_t reg_addr, uint8_t *data, uint8_t size){
-    for (int i = 0; i < size;i++){
-        I2C_WriteByte(I2Cx, slave_addr, reg_addr + i, *(data + i));
-    }
+	while (I2C_GetFlagStatus(I2Cx, I2C_FLAG_BUSY))
+        ;
+
+    I2C_GenerateSTART(I2Cx, ENABLE);  //开启I2Cx
+    while (!I2C_CheckEvent(I2Cx, I2C_EVENT_MASTER_MODE_SELECT))
+        ; /*EV5,主模式*/
+
+    I2C_Send7bitAddress(I2Cx, slave_addr,
+                        I2C_Direction_Transmitter);  //器件地址
+    while (!I2C_CheckEvent(I2Cx, I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED))
+        ;
+
+    I2C_SendData(I2Cx, reg_addr);  //寄存器地址
+	
+	for(int i=0;i<size;i++){
+		while (!I2C_CheckEvent(I2Cx, I2C_EVENT_MASTER_BYTE_TRANSMITTED))
+			;
+
+		I2C_SendData(I2Cx, data[i]);  //发送数据
+	}
+	
+    while (!I2C_CheckEvent(I2Cx, I2C_EVENT_MASTER_BYTE_TRANSMITTED))
+        ;
+
+    I2C_GenerateSTOP(I2Cx, ENABLE);  //关闭I2Cx总线
 }
 
 void I2C_ReadData(I2C_TypeDef * I2Cx,
