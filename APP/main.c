@@ -67,9 +67,12 @@ void INIT_TASK(void *pdata){
 	
 	MPU6050_Config();
 //    MPU6050_Init();
-
+	
+	Delay_s(2);
     int ret=mpu_dmp_init();
-	printf("ret:%d\n",ret);
+	if(ret!=0){
+		printf("ret:%d\n",ret);
+	}
 	//GY86_Init();
 
     // OSTaskDel(INIT_TASK_PRIO);
@@ -92,9 +95,9 @@ void HM10_TASK(void *pdata){
 		}
 		OSSemPend(ReceiverSem,1000,&err);
 		for (int i = 0; i < 6; i++) { 
-		//		if (Duty[i] > 0.01) {
+		  		if (Duty[i] > 0.01) {
 				printf("CH%i:%.2f %% \n", i + 1, Duty[i]/100);
-		//		}
+		  		}
 		}
 		OSSemPost(ReceiverSem);
 		OSTimeDly(200);
@@ -111,13 +114,13 @@ void GY86_TASK(void *pdata){
 	while(1){
 		OSSemPend(SensorSem,1000,&err);
 		
-		MPU6050ReadAcc(Acel);
-		for(int i=0;i<3;i++){
-			Acel_g[i]=(float)Acel[i]/8192;
-		}
-		MPU6050ReadGyro(Gyro);
-		MPU6050_ReturnTemp(&Temp);
-		HMC5884LReadMe(Me);
+//		MPU6050ReadAcc(Acel);
+//		for(int i=0;i<3;i++){
+//			Acel_g[i]=(float)Acel[i]/8192;
+//		}
+//		MPU6050ReadGyro(Gyro);
+//		MPU6050_ReturnTemp(&Temp);
+//		HMC5884LReadMe(Me);
 
         mpu_dmp_get_data(&pitch,&roll,&yaw);
 
@@ -189,17 +192,17 @@ int main()
 //	SysTick_Init();
 
     INIT_TASK(NULL);
-	while(1){
-		printf("next:\n");
-		mpu_dmp_get_data(&pitch,&roll,&yaw);
-		printf("Euler angles: %3f %3f %3f\n", pitch, roll, yaw);
-		Delay_ms(100);
-	}
-	
+//	while(1){
+//		printf("next:\n");
+//		mpu_dmp_get_data(&pitch,&roll,&yaw);
+//		printf("Euler angles: %3f %3f %3f\n", pitch, roll, yaw);
+//		Delay_ms(100);
+//	}
+	Delay_s(1);
     OSInit();
 
-    SensorSem=OSSemCreate(1);
-	ReceiverSem=OSSemCreate(1);
+//    SensorSem=OSSemCreate(1);
+//	ReceiverSem=OSSemCreate(1);
 
 	OSTaskCreate(HM10_TASK, (void *)0, (void *)&HM10_TASK_STK[HM10_STK_SIZE - 1], HM10_TASK_PRIO);
 //	OSTaskCreate(INIT_TASK, (void *)0, (void *)&INIT_TASK_STK[INIT_STK_SIZE - 1], INIT_TASK_PRIO);
