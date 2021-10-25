@@ -9,6 +9,7 @@
 #include "receiver.h"
 #include "sysTick.h"
 #include "inv_mpu.h"
+#include "data_transfer.h"
 
 OS_EVENT *SensorSem;
 OS_EVENT *ReceiverSem;
@@ -32,6 +33,7 @@ float pitch, roll, yaw;
 #define MOTOR_TASK_PRIO 10
 #define OLED_TASK_PRIO 25
 #define TEST_TASK_PRIO 62
+#define DATA_TRANSFER_TASK_PRIO 62
 
 #define INIT_STK_SIZE 128
 #define HM10_STK_SIZE 128
@@ -40,6 +42,7 @@ float pitch, roll, yaw;
 #define MOTOR_STK_SIZE 128
 #define OLED_STK_SIZE 128
 #define TEST_STK_SIZE 128
+#define DATA_TRANSFER_TASK_STK_SIZE 128
 
 OS_STK INIT_TASK_STK[INIT_STK_SIZE];
 OS_STK HM10_TASK_STK[HM10_STK_SIZE];
@@ -48,6 +51,7 @@ OS_STK GY86_TASK_STK[GY86_STK_SIZE];
 OS_STK MOTOR_TASK_STK[MOTOR_STK_SIZE];
 OS_STK OLED_TASK_STK[OLED_STK_SIZE];
 OS_STK TEST_TASK_STK[TEST_STK_SIZE];
+OS_STK DATA_TRANSFER_TASK_STK[DATA_TRANSFER_TASK_STK_SIZE];
 
 void INIT_TASK(void *pdata){
 	HM10_Config();
@@ -78,6 +82,14 @@ void INIT_TASK(void *pdata){
     // OSTaskDel(INIT_TASK_PRIO);
 }
 
+void Data_Transfer_Task(void *pdata){
+    INT8U err;
+    while(1){
+        ANO_DT_Send_Status((s16)roll,(s16)pitch,(s16)yaw,0);
+        ANO_DT_Send_Senser(Acel[0],Acel[1],Acel[2],Gyro[0],Gyro[1],Gyro[2],0);
+    }
+    OSTimeDly(200);
+}
 
 void HM10_TASK(void *pdata){
 	INT8U err;

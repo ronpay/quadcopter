@@ -102,6 +102,16 @@ void Usart_SendString(USART_TypeDef* pUSARTx, char* str) {
     }
 }
 
+void Usart_Transmit(USART_TypeDef* pUSARTx, u8* str,u8 length){
+    for (u8 i = 0;i<length;i++){
+        Usart_SendByte(pUSARTx, *(str + i));
+    }
+
+    /* 等待发送完成 */
+    while (USART_GetFlagStatus(pUSARTx, USART_FLAG_TC) == RESET) {
+    }
+}
+
 /*****************  进行收发测试 **********************/
 void USARTTest(USART_TypeDef* pUSARTx) {
     unsigned char i = 0;

@@ -1,4 +1,6 @@
 {
     "files.associations": {
+        "*.c": "c",
+        "data_transfer.h": "c"
     }
 }
