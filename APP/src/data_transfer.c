@@ -23,20 +23,20 @@ void ANO_DT_Send_Status(s16 angle_rol, s16 angle_pit, s16 angle_yaw, u8 sta){
     data_to_send[_cnt++] = 0x07;
 
     _temp=(s16)(angle_rol*100);
-    data_to_send[_cnt++]=BYTE1(_temp);
     data_to_send[_cnt++]=BYTE0(_temp);
+    data_to_send[_cnt++]=BYTE1(_temp);
     _temp=(s16)(angle_pit*100);
-    data_to_send[_cnt++]=BYTE1(_temp);
     data_to_send[_cnt++]=BYTE0(_temp);
+    data_to_send[_cnt++]=BYTE1(_temp);
     _temp=(s16)(angle_yaw*100);
-    data_to_send[_cnt++]=BYTE1(_temp);
     data_to_send[_cnt++]=BYTE0(_temp);
+    data_to_send[_cnt++]=BYTE1(_temp);
 
     data_to_send[_cnt++]=BYTE0(sta);
 
     u8 sumcheck = 0;
     u8 addcheck = 0;
-    for(u8 i=0;i<_cnt;i++){
+    for(u8 i=0;i<data_to_send[3]+4;i++){
         sumcheck += data_to_send[i];
         addcheck += sumcheck;
     }

@@ -10,7 +10,7 @@
       <TargetName>Target 1</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
-      <pCCUsed>5060960::V5.06 update 7 (build 960)::.\ARMCC</pCCUsed>
+      <pCCUsed>5060960::V5.06 update 7 (build 960)::ARMCC</pCCUsed>
       <uAC6>0</uAC6>
       <TargetOption>
         <TargetCommonOption>
@@ -339,7 +339,7 @@
               <MiscControls></MiscControls>
               <Define>STM32F401xx,USE_STDPERIPH_DRIVER</Define>
               <Undefine></Undefine>
-              <IncludePath>..\uC-LIB;..\uC-CPU;..\APP;..\BSP\inc;..\CORE\inc;..\LIB\inc;..\HARDWARE\inc;..\uCOS-II\CONFIG;..\uCOS-II\CORE;..\uCOS-II\PORT;..\DMP</IncludePath>
+              <IncludePath>..\uC-LIB;..\uC-CPU;..\APP\inc;..\BSP\inc;..\CORE\inc;..\LIB\inc;..\HARDWARE\inc;..\uCOS-II\CONFIG;..\uCOS-II\CORE;..\uCOS-II\PORT;..\DMP</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -387,6 +387,11 @@
               <FileName>main.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\APP\src\main.c</FilePath>
+            </File>
+            <File>
+              <FileName>data_transfer.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\APP\src\data_transfer.c</FilePath>
             </File>
           </Files>
         </Group>
