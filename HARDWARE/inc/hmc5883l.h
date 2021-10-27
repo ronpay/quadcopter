@@ -25,6 +25,7 @@
 
 void HMC_Init(void);
 void GY86_Init(void);
+void MPU_HMC_Init(void);
 // void READ_HMCALL(u16 *n);
 void HMC5884LReadMe(short *MeData);
 #endif

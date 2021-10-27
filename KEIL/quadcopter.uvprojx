@@ -393,6 +393,11 @@
               <FileType>1</FileType>
               <FilePath>..\APP\src\data_transfer.c</FilePath>
             </File>
+            <File>
+              <FileName>data_fusion.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\APP\src\data_fusion.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

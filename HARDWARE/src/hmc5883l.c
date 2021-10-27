@@ -28,10 +28,21 @@ void GY86_Init(void) {
     HMC_Init();  // HMC初始化
 }
 
+void MPU_HMC_Init(void){
+	MPU6050_WriteReg(
+        MPU_CFG,
+        0x02);  //将MPU的CFG寄存器的第二位设置为1，其他位在使用MPU时配置
+    MPU6050_WriteReg(
+        MPU_CTRL,
+        0x00);  //将MPU的CTRL寄存器的第六位设置为0，与上面一步共同开启bypass模式
+    Delay_ms(200);
+    HMC_Init();  // HMC初始化
+}
+
 // HMC初始化配置
 void HMC_Init(void) {
     HMC5883L_WriteReg(HMC_CONFIGA,
-                      0x50);  // 01010000/采样平均数4，输出速率15，正常测量配置
+                      0x50);  // 01010000/采样平均数4，输出速率15 Hz，正常测量配置
     HMC5883L_WriteReg(HMC_CONFIGB, 0xE0);  // 11100000/将增益调至最小
     HMC5883L_WriteReg(HMC_MODE, 0x00);     // 00000000/设置为连续模式
 }

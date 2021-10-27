@@ -18,9 +18,9 @@ extern u8 hm_flag;
 double Duty[6];
 
 //GY86 所需要的数组
-short Acel_g[3];
+float Acel_g[3];
 short Acel[3];
-short Gyro_g[3];
+float Gyro_g[3];
 short Gyro[3];
 float Temp;
 short Me[3];
@@ -62,7 +62,7 @@ void INIT_TASK(void *pdata){
 	OLED_CLS();
     OLED_ShowStr(0, 4, (unsigned char*)"Loding........", 2);
     Delay_s(1);
-    OLED_CLS();
+//  OLED_CLS();
 	
 //	Motor_Config();
 //	Motor_Unlock();
@@ -70,13 +70,16 @@ void INIT_TASK(void *pdata){
 //	Receiver_Config();
 	
 	MPU6050_Config();
-//    MPU6050_Init();
 	
+//    MPU6050_Init();
 	Delay_s(2);
     int ret=mpu_dmp_init();
 	if(ret!=0){
 		printf("ret:%d\n",ret);
 	}
+	Delay_s(1);
+	MPU_HMC_Init();
+	OLED_CLS();
 	//GY86_Init();
 
     // OSTaskDel(INIT_TASK_PRIO);
@@ -85,36 +88,38 @@ void INIT_TASK(void *pdata){
 void DATA_TRANSFER_TASK(void *pdata){
     INT8U err;
     while(1){
-        ANO_DT_Send_Status((s16)roll,(s16)pitch,(s16)yaw,0);
-//        ANO_DT_Send_Senser(Acel[0],Acel[1],Acel[2],Gyro[0],Gyro[1],Gyro[2],0);
+		ANO_DT_Send_Status(roll,pitch,yaw,0);
+		ANO_DT_Send_Senser(Acel_g[0],Acel_g[1],Acel_g[2],Gyro_g[0],Gyro_g[1],Gyro_g[2],0);
+		ANO_DT_Send_Senser2(Me[0],Me[1],Me[2],0,0,0,0);
+	
 		OSTimeDly(30);
     }
 }
 
-void HM10_TASK(void *pdata){
-	INT8U err;
-	while(1){
-		if(hm_flag == '0'){
-			OSSemPend(SensorSem,1000,&err);
-			
-            printf("Euler angles: %3f %3f %3f\n", pitch, roll, yaw);
-			printf("Acceleration: %8d%8d%8d\n", Acel_g[0], Acel_g[1], Acel_g[2]);
-			printf("Gyroscope:    %8d%8d%8d\n", Gyro_g[0], Gyro_g[1], Gyro_g[2]);
-			printf("Temperature:  %8.2f\n", Temp);
-			printf("MagneticField:%8d%8d%8d\n", Me[0], Me[1], Me[2]);
-			
-			OSSemPost(SensorSem);
-		}
-		OSSemPend(ReceiverSem,1000,&err);
-		for (int i = 0; i < 6; i++) { 
-		  		if (Duty[i] > 0.01) { 
-				printf("CH%i:%.2f %% \n", i + 1, Duty[i]/100);
-		  	}
-		}
-		OSSemPost(ReceiverSem);
-		OSTimeDly(200);
-	}
-}
+//void HM10_TASK(void *pdata){
+//	INT8U err;
+//	while(1){
+//		if(hm_flag == '0'){
+//			OSSemPend(SensorSem,1000,&err);
+//			
+//            printf("Euler angles: %3f %3f %3f\n", pitch, roll, yaw);
+//			printf("Acceleration: %8f%8f%8f\n", Acel_g[0], Acel_g[1], Acel_g[2]);
+//			printf("Gyroscope:    %8f%8f%8f\n", Gyro_g[0], Gyro_g[1], Gyro_g[2]);
+//			printf("Temperature:  %8.2f\n", Temp);
+//			printf("MagneticField:%8d%8d%8d\n", Me[0], Me[1], Me[2]);
+//			
+//			OSSemPost(SensorSem);
+//		}
+//		OSSemPend(ReceiverSem,1000,&err);
+//		for (int i = 0; i < 6; i++) { 
+//		  		if (Duty[i] > 0.01) { 
+//				printf("CH%i:%.2f %% \n", i + 1, Duty[i]/100);
+//		  	}
+//		}
+//		OSSemPost(ReceiverSem);
+//		OSTimeDly(200);
+//	}
+//}
 
 void RECEIVER_TASK(void *pdata){
 	INT8U err;
@@ -126,18 +131,22 @@ void GY86_TASK(void *pdata){
 	while(1){
 		OSSemPend(SensorSem,1000,&err);
 		
-//		MPU6050ReadAcc(Acel);
-//		for(int i=0;i<3;i++){
-//			// Acel_g[i]=(float)Acel[i]/8192;
-//            Acel_g[i] = Acel[i] / 1673.469f;
-//        }
-//		MPU6050ReadGyro(Gyro);
-//		for(int i=0;i<3;i++){
-//            Gyro_g[i] = Gyro[i] / 131.2f;
-//        }
+		MPU6050ReadAcc(Acel);
+		for(int i=0;i<3;i++){
+			// Acel_g[i]=(float)Acel[i]/8192;
+            Acel_g[i] = Acel[i] / 1673.469f;
+        }
+		MPU6050ReadGyro(Gyro);
+		for(int i=0;i<3;i++){
+            Gyro_g[i] = Gyro[i] / 131.2f;
+        }
+		
 //		MPU6050_ReturnTemp(&Temp);
-//		HMC5884LReadMe(Me);
-
+		HMC5884LReadMe(Me);
+		for(int i=0;i<3;i++){
+            Gyro_g[i] = Gyro_g[i];
+        }
+		
         mpu_dmp_get_data(&pitch,&roll,&yaw);
 
 		OSSemPost(SensorSem);
@@ -163,7 +172,7 @@ void OLED_TASK(void *pdata){
 	while(1){
 		OSSemPend(SensorSem,1000,&err);
 		
-		OLED_Show_3num((int)Acel_g[0]*100, (int)Acel_g[1]*100, (int)Acel_g[2]*100, 1);
+		OLED_Show_3num(Acel_g[0]*100, Acel_g[1]*100, Acel_g[2]*100, 1);
 		OLED_Show_3num(Gyro[0], Gyro[1], Gyro[2], 0);
 		OLED_ShowNum(24, 7, Temp, 2, 12);
 		OLED_Show_3num(Me[0], Me[1], Me[2], 2);
