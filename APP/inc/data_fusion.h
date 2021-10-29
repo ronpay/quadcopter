@@ -8,11 +8,9 @@
 
 #define Kp 10.0f                        // proportional gain governs rate of convergence to accelerometer/magnetometer
 #define Ki 0.008f                          // integral gain governs rate of convergence of gyroscope biases
-#define halfT 0.001f                   // half the sample period采样周期的一半
+#define halfT 0.0005f                   // half the sample period采样周期的一半
 
-float exInt, eyInt, ezInt;
-float q0 = 1.0f, q1 = 0.0f, q2 = 0.0f, q3 = 0.0f; // roll,pitch,yaw 都为 0 时对应的四元数值。
-// float roll, pitch, yaw; //has defined in main.c
-extern float roll, pitch, yaw;
 
+void IMUupdate(float gx, float gy, float gz, float ax, float ay, float az, float mx, float my, float mz);
+void Conversion_Quaternion_to_Euler(float q0, float q1, float q2, float q3);
 #endif

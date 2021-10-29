@@ -10,6 +10,7 @@
 #include "sysTick.h"
 #include "inv_mpu.h"
 #include "data_transfer.h"
+#include "data_fusion.h"
 
 OS_EVENT *SensorSem;
 OS_EVENT *ReceiverSem;
@@ -34,6 +35,7 @@ float pitch, roll, yaw;
 #define OLED_TASK_PRIO 25
 #define TEST_TASK_PRIO 62
 #define DATA_TRANSFER_TASK_PRIO 62
+#define DATA_FUSION_TASK_PRIO 61
 
 #define INIT_STK_SIZE 128
 #define HM10_STK_SIZE 128
@@ -43,6 +45,7 @@ float pitch, roll, yaw;
 #define OLED_STK_SIZE 128
 #define TEST_STK_SIZE 128
 #define DATA_TRANSFER_STK_SIZE 128
+#define DATA_FUSION_STK_SIZE 128
 
 OS_STK INIT_TASK_STK[INIT_STK_SIZE];
 OS_STK HM10_TASK_STK[HM10_STK_SIZE];
@@ -52,37 +55,52 @@ OS_STK MOTOR_TASK_STK[MOTOR_STK_SIZE];
 OS_STK OLED_TASK_STK[OLED_STK_SIZE];
 OS_STK TEST_TASK_STK[TEST_STK_SIZE];
 OS_STK DATA_TRANSFER_TASK_STK[DATA_TRANSFER_STK_SIZE];
+OS_STK DATA_FUSION_TASK_STK[DATA_FUSION_STK_SIZE];
 
 void INIT_TASK(void *pdata){
 	HM10_Config();
 	
 	OLED_Config();
     OLED_Init();
-	
 	OLED_CLS();
     OLED_ShowStr(0, 4, (unsigned char*)"Loding........", 2);
     Delay_s(1);
-//  OLED_CLS();
 	
 //	Motor_Config();
 //	Motor_Unlock();
-	
 //	Receiver_Config();
 	
+    #if 0
+    //with dmp
 	MPU6050_Config();
-	
-//    MPU6050_Init();
 	Delay_s(2);
     int ret=mpu_dmp_init();
 	if(ret!=0){
 		printf("ret:%d\n",ret);
 	}
 	Delay_s(1);
+    // Only when dmp
 	MPU_HMC_Init();
 	OLED_CLS();
-	//GY86_Init();
+    // 记得打开 GY86_TASK 中的 mpu_dmp_get_data
+    #endif
+
+    Delay_s(2);
+    // without dmp
+	GY86_Init();
+    OLED_CLS();
+
 
     // OSTaskDel(INIT_TASK_PRIO);
+}
+
+void DATA_FUSION_TASK(void *pdata){
+    INT8U err;
+    while(1){
+		IMUupdate(Gyro_g[0],Gyro_g[1],Gyro_g[2],Acel_g[0],Acel_g[1],Acel_g[2],Me[0],Me[1],Me[2]);
+	
+		OSTimeDly(5);
+    }
 }
 
 void DATA_TRANSFER_TASK(void *pdata){
@@ -92,7 +110,7 @@ void DATA_TRANSFER_TASK(void *pdata){
 		ANO_DT_Send_Senser(Acel_g[0],Acel_g[1],Acel_g[2],Gyro_g[0],Gyro_g[1],Gyro_g[2],0);
 		ANO_DT_Send_Senser2(Me[0],Me[1],Me[2],0,0,0,0);
 	
-		OSTimeDly(30);
+		OSTimeDly(10);
     }
 }
 
@@ -147,11 +165,11 @@ void GY86_TASK(void *pdata){
             Gyro_g[i] = Gyro_g[i];
         }
 		
-        mpu_dmp_get_data(&pitch,&roll,&yaw);
+        // mpu_dmp_get_data(&pitch,&roll,&yaw);
 
 		OSSemPost(SensorSem);
 		
-		OSTimeDly(15);
+		OSTimeDly(5);
 	}
 }
 
@@ -237,6 +255,7 @@ int main()
 //	OSTaskCreate(OLED_TASK, (void *)0, (void *)&OLED_TASK_STK[OLED_STK_SIZE - 1], OLED_TASK_PRIO);
 //	OSTaskCreate(TEST_TASK, (void *)0, (void *)&TEST_TASK_STK[TEST_STK_SIZE - 1], TEST_TASK_PRIO);
 	OSTaskCreate(DATA_TRANSFER_TASK, (void *)0, (void *)&DATA_TRANSFER_TASK_STK[DATA_TRANSFER_STK_SIZE - 1], DATA_TRANSFER_TASK_PRIO);
+    OSTaskCreate(DATA_FUSION_TASK, (void *)0, (void *)&DATA_FUSION_TASK_STK[DATA_FUSION_STK_SIZE - 1], DATA_FUSION_TASK_PRIO);
 	
 	
 	OSStart();
