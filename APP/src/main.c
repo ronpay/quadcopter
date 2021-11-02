@@ -11,6 +11,7 @@
 #include "inv_mpu.h"
 #include "data_transfer.h"
 #include "data_fusion.h"
+#include "ahrs.h"
 
 OS_EVENT *SensorSem;
 OS_EVENT *ReceiverSem;
@@ -24,9 +25,9 @@ extern short Acel[3];
 extern float Gyro_dps[3];
 extern short Gyro[3];
 extern short Mag[3];
-extern float Mag_gs[3];
-extern float Temp;
-extern float pitch, roll, yaw;
+extern volatile float Mag_gs[3];
+extern volatile float Temp;
+extern volatile float pitch, roll, yaw;
 
 #define INIT_TASK_PRIO 5
 #define HM10_TASK_PRIO 30
@@ -100,7 +101,7 @@ void DATA_FUSION_TASK(void *pdata){
     INT8U err;
     while(1){
         IMUupdate(Gyro_dps[0],Gyro_dps[1],Gyro_dps[2],Acel_mps[0],Acel_mps[1],Acel_mps[2],Mag_gs[0],Mag_gs[2],Mag_gs[1]);
-
+        //MadgwickAHRSupdate(Gyro_dps[1],Gyro_dps[0],-Gyro_dps[2],-Acel_mps[1],-Acel_mps[0],Acel_mps[2],-Mag_gs[2],-Mag_gs[0],Mag_gs[1]);
         OSTimeDly(5);
     }
 }

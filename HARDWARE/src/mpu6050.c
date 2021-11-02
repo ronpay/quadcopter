@@ -9,7 +9,7 @@ short Gyro[3];
 float Temp;
 short Mag[3];
 float Mag_gs[3];
-float pitch, roll, yaw;
+// float pitch, roll, yaw;
 short Gyro_Fix[3];
 short offsetMag[3];
 float MagScale[3];
@@ -213,8 +213,11 @@ void Read_Accel_MPS(void){
 
 void Read_Gyro_DPS(void){
     MPU6050ReadGyro(Gyro);
+//	Gyro[0]+=37;
+//	Gyro[1]-=31;
+//	Gyro[2]+=21;
     for(int i=0;i<3;i++){
-        Gyro_dps[i]=(float)(Gyro[i]-Gyro_Fix[i])/16.4; //(for dmp)
+        Gyro_dps[i]=(float)(Gyro[i]-Gyro_Fix[i])/16.4f; //(for dmp)
 		Gyro_dps[i]=Gyro_dps[i]*(3.1415f/180);
         // Gyro_dps[i] = Gyro[i] / ??
     }
