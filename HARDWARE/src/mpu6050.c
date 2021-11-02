@@ -67,7 +67,7 @@ void MPU6050_Init(void) {
                      0x00<<3);  //配置加速度传感器工作在+-4G模式
     MPU6050_WriteReg(
         MPU6050_RA_GYRO_CONFIG,
-        0x00<<3);  //陀螺仪自检及测量范围，典型值：0x01<<3(不自检，1000deg/s)
+        0x03<<3);  //陀螺仪自检及测量范围，典型值：0x01<<3(不自检，1000deg/s)
 }
 
 /**
@@ -214,7 +214,8 @@ void Read_Accel_MPS(void){
 void Read_Gyro_DPS(void){
     MPU6050ReadGyro(Gyro);
     for(int i=0;i<3;i++){
-        Gyro_dps[i]=(float)(Gyro[i]-Gyro_Fix[i])/131.2; //(for dmp)
+        Gyro_dps[i]=(float)(Gyro[i]-Gyro_Fix[i])/16.4; //(for dmp)
+		Gyro_dps[i]=Gyro_dps[i]*(3.1415f/180);
         // Gyro_dps[i] = Gyro[i] / ??
     }
 }

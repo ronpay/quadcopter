@@ -101,7 +101,7 @@ void DATA_FUSION_TASK(void *pdata){
     while(1){
         IMUupdate(Gyro_dps[0],Gyro_dps[1],Gyro_dps[2],Acel_mps[0],Acel_mps[1],Acel_mps[2],Mag_gs[0],Mag_gs[2],Mag_gs[1]);
 
-        OSTimeDly(10);
+        OSTimeDly(5);
     }
 }
 
