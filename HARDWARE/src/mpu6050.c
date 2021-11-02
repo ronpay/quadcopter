@@ -2,6 +2,18 @@
 
 #include "i2c.h"
 
+float Acel_mps[3];
+short Acel[3];
+float Gyro_dps[3];
+short Gyro[3];
+float Temp;
+short Mag[3];
+float Mag_gs[3];
+float pitch, roll, yaw;
+short Gyro_Fix[3];
+short offsetMag[3];
+float MagScale[3];
+
 #define MPU_ERROR I2C_ERROR
 #define MPU_INFO I2C_INFO
 
@@ -52,10 +64,10 @@ void MPU6050_Init(void) {
     MPU6050_WriteReg(MPU6050_RA_SMPLRT_DIV, 0x07);  //陀螺仪采样率
     MPU6050_WriteReg(MPU6050_RA_CONFIG, 0x06);
     MPU6050_WriteReg(MPU6050_RA_ACCEL_CONFIG,
-                     0x01<<3);  //配置加速度传感器工作在+-4G模式
+                     0x00<<3);  //配置加速度传感器工作在+-4G模式
     MPU6050_WriteReg(
         MPU6050_RA_GYRO_CONFIG,
-        0x18);  //陀螺仪自检及测量范围，典型值：0x18(不自检，2000deg/s)
+        0x00<<3);  //陀螺仪自检及测量范围，典型值：0x01<<3(不自检，1000deg/s)
 }
 
 /**
@@ -135,4 +147,82 @@ int MPU_DMP_Read_Len(uint8_t addr,uint8_t reg,uint8_t len,uint8_t *buf){
 int MPU_DMP_Write_Len(uint8_t addr,uint8_t reg,uint8_t len,uint8_t *buf){
     I2C_WriteByte_Len(I2C1, addr<<1,reg, buf, len);
     return 0;
+}
+
+void Gyro_Test(void){
+    short sum_x=0,sum_y=0,sum_z=0;
+    Gyro[0]=0,Gyro[1]=0,Gyro[2]=0;
+    int times = 50;
+    for(int i=0; i<times; i++)
+    {
+    MPU6050ReadGyro(Gyro);
+    sum_x+=Gyro[0];
+    sum_y+=Gyro[1];
+    sum_z+=Gyro[2];
+    }
+    Gyro_Fix[0]=sum_x/times;
+    Gyro_Fix[1]=sum_y/times;
+    Gyro_Fix[2]=sum_z/times;
+}
+
+//磁力计校准，8字校准。
+void Mag_Test(void)
+{
+  short xMin,yMin,zMin;
+  short xMax,yMax,zMax;
+
+  //初始化
+  HMC5884LReadMe(Mag);
+  xMin=xMax=Mag[0];
+  yMin=yMax=Mag[1];
+  zMin=zMax=Mag[2];
+  
+  for(int i=0;i<100;i++)
+  {
+    HMC5884LReadMe(Mag);
+    if(Mag[0]>xMax)xMax=Mag[0];
+    else if(Mag[0]<xMin)xMin=Mag[0];
+
+    if(Mag[1]>yMax)yMax=Mag[1];
+    else if(Mag[1]<yMin)yMin=Mag[1];
+
+    if(Mag[2]>zMax)zMax=Mag[2];
+    else if(Mag[2]<zMin)zMin=Mag[2];
+  }
+
+  MagScale[1]=(float)(xMax-xMin)/(float)(yMax-yMin);
+  MagScale[2]=(float)(xMax-xMin)/(float)(zMax-zMin);
+
+  offsetMag[0]=MagScale[0]*(xMax-1/2*(xMax-xMin));
+  offsetMag[1]=MagScale[1]*(yMax-1/2*(yMax-yMin));
+  offsetMag[2]=MagScale[2]*(zMax-1/2*(zMax-zMin));
+}
+
+void GY86_SelfTest(void){
+    Gyro_Test();
+    Mag_Test();
+}
+
+void Read_Accel_MPS(void){
+    MPU6050ReadAcc(Acel);
+    for(int i=0;i<3;i++){
+        // Acel_mps[i]=(float)Acel[i]/8192;
+        Acel_mps[i] = Acel[i] / 1673.469f; //(for dmp)
+    }
+}
+
+void Read_Gyro_DPS(void){
+    MPU6050ReadGyro(Gyro);
+    for(int i=0;i<3;i++){
+        Gyro_dps[i]=(float)(Gyro[i]-Gyro_Fix[i])/131.2; //(for dmp)
+        // Gyro_dps[i] = Gyro[i] / ??
+    }
+}
+
+void Read_Mag_Gs(void){
+    HMC5884LReadMe(Mag);
+    for (int i = 0; i < 3;i++){
+		Mag_gs[i] = ((float)Mag[i] );
+//        Mag_gs[i] = ((float)Mag[i] - offsetMag[i]) * MagScale[i];
+    }
 }

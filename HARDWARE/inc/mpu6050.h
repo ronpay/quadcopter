@@ -2,6 +2,7 @@
 #define __MPU6050_H
 #include <stdio.h>
 
+#include "hmc5883l.h"
 #include "stm32f4xx.h"
 #include "sysTick.h"
 
@@ -388,5 +389,13 @@ int MPU_DMP_Read_Len(uint8_t addr,uint8_t reg,uint8_t len,uint8_t *buf);
 int MPU_DMP_Write_Len(uint8_t addr,uint8_t reg,uint8_t len,uint8_t *buf);
 
 void MPU6050_PWR_MGMT_1_INIT(void);
+
+void Gyro_Test(void);
+void Mag_Test(void);
+void GY86_SelfTest(void);
+
+void Read_Accel_MPS(void);
+void Read_Gyro_DPS(void);
+void Read_Mag_Gs(void);
 
 #endif
