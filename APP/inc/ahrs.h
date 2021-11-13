@@ -11,14 +11,14 @@
 //
 //=====================================================================================================
 #ifndef __AHRS_H
-#define __AHRS_H
+#    define __AHRS_H
 
-#include "data_fusion.h"
+#    include "data_fusion.h"
 
 //----------------------------------------------------------------------------------------------------
 // Variable declaration
 
-extern volatile float beta;				// algorithm gain
+extern volatile float beta;  // algorithm gain
 // extern volatile float q0, q1, q2, q3;	// quaternion of sensor frame relative to auxiliary frame
 // extern volatile float pitch, roll, yaw;
 

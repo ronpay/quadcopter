@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <time.h>
 
-extern volatile float q0 , q1 , q2 , q3 ;
+extern volatile float q0, q1, q2, q3;
 extern volatile float pitch, roll, yaw;
 
 void IMUupdate(float gx, float gy, float gz, float ax, float ay, float az, float mx, float my, float mz);

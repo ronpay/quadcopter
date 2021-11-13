@@ -11,7 +11,7 @@
 void SysTick_Init(void);
 void Delay_ms(__IO u32 nTime);
 void Delay_s(unsigned int ms);
-int get_tick_count(unsigned long *count);
+int  get_tick_count(unsigned long* count);
 
 void TimeStamp_Increment(void);
 void TimingDelay_Decrement(void);

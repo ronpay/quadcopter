@@ -10,7 +10,7 @@
 #include "sysTick.h"
 #include "ucos_ii.h"
 
-static __IO u32 TimingDelay;
+static __IO u32      TimingDelay;
 static __IO uint32_t g_ul_ms_ticks = 0;
 
 /**
@@ -18,7 +18,8 @@ static __IO uint32_t g_ul_ms_ticks = 0;
  * @param  无
  * @retval 无
  */
-void SysTick_Init(void) {
+void SysTick_Init(void)
+{
     /* SystemFrequency / 1000    1ms中断一次
      * SystemFrequency / 100000	 10us中断一次
      * SystemFrequency / 1000000 1us中断一次
@@ -37,11 +38,11 @@ void SysTick_Init(void) {
  * @retval  无
  */
 
-void Delay_ms(__IO u32 nTime) {
-	TimingDelay = nTime;
+void Delay_ms(__IO u32 nTime)
+{
+    TimingDelay = nTime;
     while (TimingDelay != 0)
         ;
-	
 }
 /**
  * @brief   s延时程序
@@ -49,7 +50,8 @@ void Delay_ms(__IO u32 nTime) {
  *		@arg ms: Delay_s( 1 ) 则实现的延时为 1s
  * @retval  无
  */
-void Delay_s(unsigned int ms) {
+void Delay_s(unsigned int ms)
+{
     unsigned char i;
     for (i = 0; i < ms; ms--) {
         Delay_ms(1000);
@@ -62,7 +64,8 @@ void Delay_s(unsigned int ms) {
  * @retval 无
  * @attention  在 SysTick 中断函数 SysTick_Handler()调用
  */
-void TimingDelay_Decrement(void) {
+void TimingDelay_Decrement(void)
+{
     if (TimingDelay != 0x00) {
         TimingDelay--;
     }
@@ -73,7 +76,8 @@ void TimingDelay_Decrement(void) {
  * @param  存储最新毫秒值的变量
  * @retval 无
  */
-int get_tick_count(unsigned long *count) {
+int get_tick_count(unsigned long* count)
+{
     count[0] = g_ul_ms_ticks;
     return 0;
 }
@@ -83,5 +87,8 @@ int get_tick_count(unsigned long *count) {
  * @param  无
  * @retval 无
  */
-void TimeStamp_Increment(void) { g_ul_ms_ticks++; }
+void TimeStamp_Increment(void)
+{
+    g_ul_ms_ticks++;
+}
 /*********************************************END OF FILE**********************/

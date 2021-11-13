@@ -2,7 +2,8 @@
 
 #include "stm32f4xx.h"
 #include "sysTick.h"
-void LED_Config(void) {
+void LED_Config(void)
+{
     /*定义一个GPIO_InitTypeDef类型的结构体*/
     GPIO_InitTypeDef GPIO_InitStructure;
 

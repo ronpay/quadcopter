@@ -34,7 +34,10 @@
  * @retval 无
  */
 
-void OLED_Config(void) { I2C3_Configuration(); }
+void OLED_Config(void)
+{
+    I2C3_Configuration();
+}
 
 /**
  * @brief  I2C_WriteByte，向OLED寄存器地址写一个byte的数据
@@ -42,9 +45,9 @@ void OLED_Config(void) { I2C3_Configuration(); }
  *					data：要写入的数据
  * @retval 无
  */
-//void I2C_WriteByte(uint8_t addr, uint8_t data) {
-//    while (I2C_GetFlagStatus(I2C3, I2C_FLAG_BUSY))
-//        ;
+// void I2C_WriteByte(uint8_t addr, uint8_t data) {
+//     while (I2C_GetFlagStatus(I2C3, I2C_FLAG_BUSY))
+//         ;
 
 //    I2C_GenerateSTART(I2C3, ENABLE);  //开启I2C3
 //    while (!I2C_CheckEvent(I2C3, I2C_EVENT_MASTER_MODE_SELECT))
@@ -73,7 +76,7 @@ void OLED_Config(void) { I2C3_Configuration(); }
  */
 void WriteCmd(unsigned char I2C_Command)  //写命令
 {
-    I2C_WriteByte(I2C3,OLED_ADDRESS,0x00, I2C_Command);
+    I2C_WriteByte(I2C3, OLED_ADDRESS, 0x00, I2C_Command);
 }
 
 /**
@@ -83,7 +86,7 @@ void WriteCmd(unsigned char I2C_Command)  //写命令
  */
 void WriteDat(unsigned char I2C_Data)  //写数据
 {
-    I2C_WriteByte(I2C3,OLED_ADDRESS,0x40, I2C_Data);
+    I2C_WriteByte(I2C3, OLED_ADDRESS, 0x40, I2C_Data);
 }
 
 /**
@@ -91,7 +94,8 @@ void WriteDat(unsigned char I2C_Data)  //写数据
  * @param  无
  * @retval 无
  */
-void OLED_Init(void) {
+void OLED_Init(void)
+{
     Delay_ms(1000);  // 1s,这里的延时很重要,上电后延时，没有错误的冗余设计
     WriteCmd(0xAE);  // display off
     WriteCmd(0x20);  // Set Memory Addressing Mode
@@ -171,7 +175,8 @@ void OLED_CLS(void)  //清屏
  * @param  无
  * @retval 无
  */
-void OLED_ON(void) {
+void OLED_ON(void)
+{
     WriteCmd(0X8D);  //设置电荷泵
     WriteCmd(0X14);  //开启电荷泵
     WriteCmd(0XAF);  // OLED唤醒
@@ -182,7 +187,8 @@ void OLED_ON(void) {
  * @param  无
  * @retval 无
  */
-void OLED_OFF(void) {
+void OLED_OFF(void)
+{
     WriteCmd(0X8D);  //设置电荷泵
     WriteCmd(0X10);  //关闭电荷泵
     WriteCmd(0XAE);  // OLED休眠
@@ -195,8 +201,8 @@ void OLED_OFF(void) {
  *					TextSize : 字符大小(1:6*8 ; 2:8*16)
  * @retval 无
  */
-void OLED_ShowStr(unsigned char x, unsigned char y, unsigned char ch[],
-                  unsigned char TextSize) {
+void OLED_ShowStr(unsigned char x, unsigned char y, unsigned char ch[], unsigned char TextSize)
+{
     unsigned char c = 0, i = 0, j = 0;
     switch (TextSize) {
         case 1: {
@@ -207,7 +213,8 @@ void OLED_ShowStr(unsigned char x, unsigned char y, unsigned char ch[],
                     y++;
                 }
                 OLED_SetPos(x, y);
-                for (i = 0; i < 6; i++) WriteDat(F6x8[c][i]);
+                for (i = 0; i < 6; i++)
+                    WriteDat(F6x8[c][i]);
                 x += 6;
                 j++;
             }
@@ -220,9 +227,11 @@ void OLED_ShowStr(unsigned char x, unsigned char y, unsigned char ch[],
                     y++;
                 }
                 OLED_SetPos(x, y);
-                for (i = 0; i < 8; i++) WriteDat(F8X16[c * 16 + i]);
+                for (i = 0; i < 8; i++)
+                    WriteDat(F8X16[c * 16 + i]);
                 OLED_SetPos(x, y + 1);
-                for (i = 0; i < 8; i++) WriteDat(F8X16[c * 16 + i + 8]);
+                for (i = 0; i < 8; i++)
+                    WriteDat(F8X16[c * 16 + i + 8]);
                 x += 8;
                 j++;
             }
@@ -236,9 +245,10 @@ void OLED_ShowStr(unsigned char x, unsigned char y, unsigned char ch[],
  *					N:汉字在codetab.h中的索引
  * @retval 无
  */
-void OLED_ShowCN(unsigned char x, unsigned char y, unsigned char N) {
-    unsigned char wm = 0;
-    unsigned int adder = 32 * N;
+void OLED_ShowCN(unsigned char x, unsigned char y, unsigned char N)
+{
+    unsigned char wm    = 0;
+    unsigned int  adder = 32 * N;
     OLED_SetPos(x, y);
     for (wm = 0; wm < 16; wm++) {
         WriteDat(F16x16[adder]);
@@ -258,9 +268,9 @@ void OLED_ShowCN(unsigned char x, unsigned char y, unsigned char N) {
  *起点对角线(结束点)的坐标(x1:1~128,y1:1~8)
  * @retval 无
  */
-void OLED_DrawBMP(unsigned char x0, unsigned char y0, unsigned char x1,
-                  unsigned char y1, unsigned char BMP[]) {
-    unsigned int j = 0;
+void OLED_DrawBMP(unsigned char x0, unsigned char y0, unsigned char x1, unsigned char y1, unsigned char BMP[])
+{
+    unsigned int  j = 0;
     unsigned char x, y;
 
     if (y1 % 8 == 0)
@@ -281,17 +291,21 @@ void OLED_DrawBMP(unsigned char x0, unsigned char y0, unsigned char x1,
 // size:字体大小
 // mode:模式	0,填充模式;1,叠加模式
 // num:数值(0~4294967295);
-unsigned int oled_pow(uint8_t m, uint8_t n) {
+unsigned int oled_pow(uint8_t m, uint8_t n)
+{
     unsigned int result = 1;
-    while (n--) result *= m;
+    while (n--)
+        result *= m;
     return result;
 }
-void OLED_Set_Pos(uint8_t x, uint8_t y) {
+void OLED_Set_Pos(uint8_t x, uint8_t y)
+{
     WriteCmd(0xb0 + y);
     WriteCmd(((x & 0xf0) >> 4) | 0x10);
     WriteCmd(x & 0x0f);
 }
-void OLED_ShowChar(uint8_t x, uint8_t y, uint8_t chr, uint8_t Char_Size) {
+void OLED_ShowChar(uint8_t x, uint8_t y, uint8_t chr, uint8_t Char_Size)
+{
     unsigned char c = 0, i = 0;
     c = chr - ' ';  //得到偏移后的值
     if (x > 128 - 1) {
@@ -300,17 +314,21 @@ void OLED_ShowChar(uint8_t x, uint8_t y, uint8_t chr, uint8_t Char_Size) {
     }
     if (Char_Size == 16) {
         OLED_Set_Pos(x, y);
-        for (i = 0; i < 8; i++) WriteDat(F8X16[c * 16 + i]);
+        for (i = 0; i < 8; i++)
+            WriteDat(F8X16[c * 16 + i]);
         OLED_Set_Pos(x, y + 1);
-        for (i = 0; i < 8; i++) WriteDat(F8X16[c * 16 + i + 8]);
-    } else {
+        for (i = 0; i < 8; i++)
+            WriteDat(F8X16[c * 16 + i + 8]);
+    }
+    else {
         OLED_Set_Pos(x, y);
-        for (i = 0; i < 6; i++) WriteDat(F6x8[c][i]);
+        for (i = 0; i < 6; i++)
+            WriteDat(F6x8[c][i]);
     }
 }
 
-void OLED_ShowNum(uint8_t x, uint8_t y, unsigned int num, uint8_t len,
-                  uint8_t size2) {
+void OLED_ShowNum(uint8_t x, uint8_t y, unsigned int num, uint8_t len, uint8_t size2)
+{
     uint8_t t, temp;
     uint8_t enshow = 0;
     for (t = 0; t < len; t++) {
@@ -319,7 +337,8 @@ void OLED_ShowNum(uint8_t x, uint8_t y, unsigned int num, uint8_t len,
             if (temp == 0) {
                 OLED_ShowChar(x + (size2 / 2) * t, y, ' ', size2);
                 continue;
-            } else
+            }
+            else
                 enshow = 1;
         }
         OLED_ShowChar(x + (size2 / 2) * t, y, temp + '0', size2);
@@ -327,7 +346,8 @@ void OLED_ShowNum(uint8_t x, uint8_t y, unsigned int num, uint8_t len,
 }
 
 // OLED数据显示 3组
-void OLED_Show_3num(uint16_t x, uint16_t y, uint16_t z, uint8_t row) {
+void OLED_Show_3num(uint16_t x, uint16_t y, uint16_t z, uint8_t row)
+{
     x = (int)x, y = (int)y, z = (int)z, row = (int)row;
 
     OLED_ShowNum(22, row, x, 3, 12);

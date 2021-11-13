@@ -4,7 +4,6 @@
 #include "stm32f4xx.h"
 #include "tim.h"
 
-
 void Receiver_Config(void);
 void Receiver_IRQ_Handler(void);
 

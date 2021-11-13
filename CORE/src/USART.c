@@ -1,18 +1,20 @@
 #include "USART.h"
 
-static void NVIC_Configuration(void) {
+static void NVIC_Configuration(void)
+{
     NVIC_InitTypeDef NVIC_InitStructure;
 
     // USART6 NVIC(中断控制器) 配置
-    NVIC_InitStructure.NVIC_IRQChannel = USART6_IRQn;  //串口1中断通道
-    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;  //抢占优先级1
-    NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;         //子优先级1
-    NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;  // IRQ通道使能
-    NVIC_Init(&NVIC_InitStructure);  //根据指定的参数初始化NVIC寄存器、
+    NVIC_InitStructure.NVIC_IRQChannel                   = USART6_IRQn;  //串口1中断通道
+    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;            //抢占优先级1
+    NVIC_InitStructure.NVIC_IRQChannelSubPriority        = 1;            //子优先级1
+    NVIC_InitStructure.NVIC_IRQChannelCmd                = ENABLE;       // IRQ通道使能
+    NVIC_Init(&NVIC_InitStructure);                                      //根据指定的参数初始化NVIC寄存器、
 }
 
-void USART6_Config(void) {
-    GPIO_InitTypeDef GPIO_InitStructure;
+void USART6_Config(void)
+{
+    GPIO_InitTypeDef  GPIO_InitStructure;
     USART_InitTypeDef USART_InitStructure;
 
     /* 使能 USART GPIO 时钟 */
@@ -53,8 +55,7 @@ void USART6_Config(void) {
     /* 校验位选择：不使用校验 */
     USART_InitStructure.USART_Parity = USART_Parity_No;
     /* 硬件流控制：不使用硬件流 */
-    USART_InitStructure.USART_HardwareFlowControl =
-        USART_HardwareFlowControl_None;
+    USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
     /* USART 模式控制：同时使能接收和发送 */
     USART_InitStructure.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;
     /* 完成 USART 初始化配置 */
@@ -71,7 +72,8 @@ void USART6_Config(void) {
 }
 
 /*****************  发送一个字符 **********************/
-static void Usart_SendByte(USART_TypeDef* pUSARTx, uint8_t ch) {
+static void Usart_SendByte(USART_TypeDef* pUSARTx, uint8_t ch)
+{
     /* 发送一个字节数据到USARTx */
     USART_SendData(pUSARTx, ch);
 
@@ -81,7 +83,8 @@ static void Usart_SendByte(USART_TypeDef* pUSARTx, uint8_t ch) {
 }
 
 /*****************  接受一个字符 **********************/
-unsigned char USARTGetByte(USART_TypeDef* pUSARTx, unsigned char* GetData) {
+unsigned char USARTGetByte(USART_TypeDef* pUSARTx, unsigned char* GetData)
+{
     if (USART_GetFlagStatus(pUSARTx, USART_FLAG_RXNE) == RESET) {
         return 0;  //没有收到数据
     }
@@ -90,7 +93,8 @@ unsigned char USARTGetByte(USART_TypeDef* pUSARTx, unsigned char* GetData) {
 }
 
 /*****************  发送字符串 **********************/
-void Usart_SendString(USART_TypeDef* pUSARTx, char* str) {
+void Usart_SendString(USART_TypeDef* pUSARTx, char* str)
+{
     unsigned int k = 0;
     do {
         Usart_SendByte(pUSARTx, *(str + k));
@@ -98,22 +102,22 @@ void Usart_SendString(USART_TypeDef* pUSARTx, char* str) {
     } while (*(str + k) != '\0');
 
     /* 等待发送完成 */
-    while (USART_GetFlagStatus(pUSARTx, USART_FLAG_TC) == RESET) {
-    }
+    while (USART_GetFlagStatus(pUSARTx, USART_FLAG_TC) == RESET) {}
 }
 
-void Usart_Transmit(USART_TypeDef* pUSARTx, u8* str,u8 length){
-    for (u8 i = 0;i<length;i++){
+void Usart_Transmit(USART_TypeDef* pUSARTx, u8* str, u8 length)
+{
+    for (u8 i = 0; i < length; i++) {
         Usart_SendByte(pUSARTx, *(str + i));
     }
 
     /* 等待发送完成 */
-    while (USART_GetFlagStatus(pUSARTx, USART_FLAG_TC) == RESET) {
-    }
+    while (USART_GetFlagStatus(pUSARTx, USART_FLAG_TC) == RESET) {}
 }
 
 /*****************  进行收发测试 **********************/
-void USARTTest(USART_TypeDef* pUSARTx) {
+void USARTTest(USART_TypeDef* pUSARTx)
+{
     unsigned char i = 0;
 
     while (1) {

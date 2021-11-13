@@ -14,19 +14,15 @@
 #define MPU6050_SMPLRT_DIV 0  // 8000Hz
 #define MPU6050_DLPF_CFG 0
 #define MPU6050_GYRO_OUT 0x43  // MPU6050Ã�Ã“Ã‚Ã�Ã’Ã‡ÃŠÃ½Â¾Ã�Â¼Ã„Â´Ã¦Ã†Ã·ÂµÃ˜Ã–Â·
-#define MPU6050_ACC_OUT 0x3B  // MPU6050Â¼Ã“Ã‹Ã™Â¶ÃˆÃŠÃ½Â¾Ã�Â¼Ã„Â´Ã¦Ã†Ã·ÂµÃ˜Ã–Â·
+#define MPU6050_ACC_OUT 0x3B   // MPU6050Â¼Ã“Ã‹Ã™Â¶ÃˆÃŠÃ½Â¾Ã�Â¼Ã„Â´Ã¦Ã†Ã·ÂµÃ˜Ã–Â·
 
-#define MPU6050_ADDRESS_AD0_LOW \
-    0x68  // address pin low (GND), default for InvenSense evaluation board
+#define MPU6050_ADDRESS_AD0_LOW 0x68   // address pin low (GND), default for InvenSense evaluation board
 #define MPU6050_ADDRESS_AD0_HIGH 0x69  // address pin high (VCC)
 #define MPU6050_DEFAULT_ADDRESS MPU6050_ADDRESS_AD0_LOW
 
-#define MPU6050_RA_XG_OFFS_TC \
-    0x00  //[7] PWR_MODE, [6:1] XG_OFFS_TC, [0] OTP_BNK_VLD
-#define MPU6050_RA_YG_OFFS_TC \
-    0x01  //[7] PWR_MODE, [6:1] YG_OFFS_TC, [0] OTP_BNK_VLD
-#define MPU6050_RA_ZG_OFFS_TC \
-    0x02  //[7] PWR_MODE, [6:1] ZG_OFFS_TC, [0] OTP_BNK_VLD
+#define MPU6050_RA_XG_OFFS_TC 0x00   //[7] PWR_MODE, [6:1] XG_OFFS_TC, [0] OTP_BNK_VLD
+#define MPU6050_RA_YG_OFFS_TC 0x01   //[7] PWR_MODE, [6:1] YG_OFFS_TC, [0] OTP_BNK_VLD
+#define MPU6050_RA_ZG_OFFS_TC 0x02   //[7] PWR_MODE, [6:1] ZG_OFFS_TC, [0] OTP_BNK_VLD
 #define MPU6050_RA_X_FINE_GAIN 0x03  //[7:0] X_FINE_GAIN
 #define MPU6050_RA_Y_FINE_GAIN 0x04  //[7:0] Y_FINE_GAIN
 #define MPU6050_RA_Z_FINE_GAIN 0x05  //[7:0] Z_FINE_GAIN
@@ -376,17 +372,17 @@
 
 void MPU6050_Config(void);
 
-void MPU6050ReadTemp(short *tempData);
-void MPU6050ReadGyro(short *gyroData);
-void MPU6050ReadAcc(short *accData);
-void MPU6050_ReturnTemp(float *Temperature);
-void MPU6050_Init(void);
+void    MPU6050ReadTemp(short* tempData);
+void    MPU6050ReadGyro(short* gyroData);
+void    MPU6050ReadAcc(short* accData);
+void    MPU6050_ReturnTemp(float* Temperature);
+void    MPU6050_Init(void);
 uint8_t MPU6050ReadID(void);
-void MPU6050_ReadData(u8 reg_add, unsigned char *Read, u8 num);
-void MPU6050_WriteReg(u8 reg_add, u8 reg_dat);
+void    MPU6050_ReadData(u8 reg_add, unsigned char* Read, u8 num);
+void    MPU6050_WriteReg(u8 reg_add, u8 reg_dat);
 
-int MPU_DMP_Read_Len(uint8_t addr,uint8_t reg,uint8_t len,uint8_t *buf);
-int MPU_DMP_Write_Len(uint8_t addr,uint8_t reg,uint8_t len,uint8_t *buf);
+int MPU_DMP_Read_Len(uint8_t addr, uint8_t reg, uint8_t len, uint8_t* buf);
+int MPU_DMP_Write_Len(uint8_t addr, uint8_t reg, uint8_t len, uint8_t* buf);
 
 void MPU6050_PWR_MGMT_1_INIT(void);
 
