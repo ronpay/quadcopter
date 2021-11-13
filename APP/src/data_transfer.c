@@ -13,7 +13,7 @@ void ANO_DT_Send_Data(u8* dataToSend, u8 length)
     Usart_Transmit(USART6, dataToSend, length);
 }
 
-void ANO_DT_Send_Status(float angle_rol, float angle_pit, float angle_yaw, u8 sta)
+void ANO_DT_Send_Status(float angle_rol, float angle_pit, float angle_yaw, uint8_t sta)
 {
     u8   _cnt = 0;
     vs16 _temp;
@@ -46,7 +46,7 @@ void ANO_DT_Send_Status(float angle_rol, float angle_pit, float angle_yaw, u8 st
     ANO_DT_Send_Data(data_to_send, _cnt);
 }
 
-void ANO_DT_Send_Senser(float a_x, float a_y, float a_z, float g_x, float g_y, float g_z, u8 sta)
+void ANO_DT_Send_Senser(float a_x, float a_y, float a_z, float g_x, float g_y, float g_z, uint8_t sta)
 {
     u8   _cnt = 0;
     vs16 _temp;
@@ -89,7 +89,7 @@ void ANO_DT_Send_Senser(float a_x, float a_y, float a_z, float g_x, float g_y, f
     ANO_DT_Send_Data(data_to_send, _cnt);
 }
 
-void ANO_DT_Send_Senser2(float m_x, float m_y, float m_z, s32 alt, s16 tmp, u8 bar_sta, u8 mag_sta)
+void ANO_DT_Send_Senser2(float m_x, float m_y, float m_z, int32_t alt, int16_t tmp, uint8_t bar_sta, uint8_t mag_sta)
 {
     u8   _cnt = 0;
     vs16 _temp;
@@ -121,6 +121,40 @@ void ANO_DT_Send_Senser2(float m_x, float m_y, float m_z, s32 alt, s16 tmp, u8 b
     data_to_send[_cnt++] = BYTE0(bar_sta);
 
     data_to_send[_cnt++] = BYTE0(mag_sta);
+
+    u8 sumcheck = 0;
+    u8 addcheck = 0;
+    for (u8 i = 0; i < _cnt; i++) {
+        sumcheck += data_to_send[i];
+        addcheck += sumcheck;
+    }
+    data_to_send[_cnt++] = sumcheck;
+    data_to_send[_cnt++] = addcheck;
+    ANO_DT_Send_Data(data_to_send, _cnt);
+}
+
+void ANO_DT_Send_PWM(uint16_t PWM1, uint16_t PWM2, uint16_t PWM3, uint16_t PWM4)
+{
+    u8   _cnt = 0;
+    vs16 _temp;
+
+    data_to_send[_cnt++] = 0xAA;
+    data_to_send[_cnt++] = 0xFF;
+    data_to_send[_cnt++] = 0x20;
+    data_to_send[_cnt++] = 0x08;
+
+    _temp                = PWM1;
+    data_to_send[_cnt++] = BYTE0(_temp);
+    data_to_send[_cnt++] = BYTE1(_temp);
+    _temp                = PWM2;
+    data_to_send[_cnt++] = BYTE0(_temp);
+    data_to_send[_cnt++] = BYTE1(_temp);
+    _temp                = PWM3;
+    data_to_send[_cnt++] = BYTE0(_temp);
+    data_to_send[_cnt++] = BYTE1(_temp);
+    _temp                = PWM4;
+    data_to_send[_cnt++] = BYTE0(_temp);
+    data_to_send[_cnt++] = BYTE1(_temp);
 
     u8 sumcheck = 0;
     u8 addcheck = 0;

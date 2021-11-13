@@ -2,7 +2,7 @@
 
 volatile uint8_t  captureFlag[6] = {0};  //捕获状态
 volatile uint32_t CapVal[6]      = {0};  //第一次下降沿计数值
-extern double     Duty[6];
+uint16_t          Duty[6];               // 1000-2000
 const int         Cycle = 20000;
 
 void Receiver_Config(void)
@@ -26,7 +26,7 @@ void Receiver_IRQ_Handler(void)
                 break;
             case 1:
                 CapVal[receiverNum] = TIM_GetCapture1(TIM3);
-                Duty[receiverNum]   = (float)(CapVal[receiverNum] % Cycle);
+                Duty[receiverNum]   = CapVal[receiverNum] % Cycle;
 
                 TIM_OC1PolarityConfig(TIM3, TIM_ICPolarity_Rising);
                 captureFlag[receiverNum] = 0;
@@ -49,7 +49,7 @@ void Receiver_IRQ_Handler(void)
                 break;
             case 1:
                 CapVal[receiverNum] = TIM_GetCapture2(TIM3);
-                Duty[receiverNum]   = (float)(CapVal[receiverNum] % Cycle);
+                Duty[receiverNum]   = CapVal[receiverNum] % Cycle;
                 TIM_OC2PolarityConfig(TIM3, TIM_ICPolarity_Rising);
                 captureFlag[receiverNum] = 0;
 
@@ -71,7 +71,7 @@ void Receiver_IRQ_Handler(void)
                 break;
             case 1:
                 CapVal[receiverNum] = TIM_GetCapture3(TIM3);
-                Duty[receiverNum]   = (float)(CapVal[receiverNum] % Cycle);
+                Duty[receiverNum]   = CapVal[receiverNum] % Cycle;
                 TIM_OC3PolarityConfig(TIM3, TIM_ICPolarity_Rising);
                 captureFlag[receiverNum] = 0;
 
@@ -93,7 +93,7 @@ void Receiver_IRQ_Handler(void)
                 break;
             case 1:
                 CapVal[receiverNum] = TIM_GetCapture4(TIM3);
-                Duty[receiverNum]   = (float)(CapVal[receiverNum] % Cycle);
+                Duty[receiverNum]   = CapVal[receiverNum] % Cycle;
                 TIM_OC4PolarityConfig(TIM3, TIM_ICPolarity_Rising);
                 captureFlag[receiverNum] = 0;
         }

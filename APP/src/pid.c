@@ -18,6 +18,7 @@ extern short          Mag[3];
 extern volatile float Mag_gs[3];
 extern volatile float Temp;
 extern volatile float pitch, roll, yaw;
+extern double         Duty[6];
 
 PID_type PID_angle_roll = {
     .kp = 1.0,
@@ -160,67 +161,77 @@ float ratePID(PID_type* pid, float state, float angledesired, float dt)
     return ans;
 }
 
-void TASK_PID(void)
-{
-    int time;  //暂无
-    int motor[4];
-    controlinit(&control);
-    while (1) {
-        //获取遥控器信息
-        // getsetpoint();
+// void PID_TASK(void* pdata)
+//{
+//     int time;  //暂无
+//     int motor[4];
+//     controlinit(&control);
+//     while (1) {
+//         //获取遥控器信息
+//         // getsetpoint();
 
-        //获取传感器数据
-        // getsensor();
+//        //获取传感器数据
+//        // getsensor();
 
-        //进行姿态解算
-        sensordata.acc.x = Acel_mps[0];
-        sensordata.acc.y = Acel_mps[1];
-        sensordata.acc.z = Acel_mps[2];
+//        //进行姿态解算
+//        sensordata.acc.x = Acel_mps[0];
+//        sensordata.acc.y = Acel_mps[1];
+//        sensordata.acc.z = Acel_mps[2];
 
-        sensordata.gyro.x = Gyro_dps[0];
-        sensordata.gyro.y = Gyro_dps[1];
-        sensordata.gyro.z = Gyro_dps[2];
+//        sensordata.gyro.x = Gyro_dps[0];
+//        sensordata.gyro.y = Gyro_dps[1];
+//        sensordata.gyro.z = Gyro_dps[2];
 
-        sensordata.mag.x = Mag_gs[0];
-        sensordata.mag.y = Mag_gs[1];
-        sensordata.mag.z = Mag_gs[2];
+//        sensordata.mag.x = Mag_gs[0];
+//        sensordata.mag.y = Mag_gs[1];
+//        sensordata.mag.z = Mag_gs[2];
 
-        state.yaw   = yaw;
-        state.roll  = roll;
-        state.pitch = pitch;
+//        state.yaw   = yaw;
+//        state.roll  = roll;
+//        state.pitch = pitch;
 
-        //			if(TIME_TODO(ATTITUDE_ESTIMAT_RATE,time)){
-        //				imuUpdate(sensordata.acc,sensordata.gyro,&state,ATTITUDE_ESTIMAT_DT);
-        //				float x=state.pitch;
-        //				state.pitch=state.roll;
-        //				state.roll=x;
-        //			}
+//        setpoint.throttle = Duty[0] - 1500;
+//        setpoint.yaw      = Duty[1] - 1500;
+//        setpoint.pitch = Duty[2] - 1500;
+//        setpoint.roll = Duty[3] - 1500;
 
-        //计算点击控制
-        attitudecontrol(&control, &setpoint, &state, time, &sensordata);
-        //设置电机转速
-        // MOTOR_control(&control);
-        //
-        motor[0] = LIM(control.throttle - control.roll - control.pitch + control.yaw);
-        motor[1] = LIM(control.throttle - control.roll + control.pitch - control.yaw);
-        motor[2] = LIM(control.throttle + control.roll + control.pitch + control.yaw);
-        motor[3] = LIM(control.throttle + control.roll - control.pitch - control.yaw);
+//        //			if(TIME_TODO(ATTITUDE_ESTIMAT_RATE,time)){
+//        //				imuUpdate(sensordata.acc,sensordata.gyro,&state,ATTITUDE_ESTIMAT_DT);
+//        //				float x=state.pitch;
+//        //				state.pitch=state.roll;
+//        //				state.roll=x;
+//        //			}
 
-        //			OSQPost(mm,&remotor[ptr]);
-        //			ptr=(ptr+1)%128;
-        if (1) {
-            TIM_SetCompare1(TIM2, motor[0]);  // 如果电机解锁
-            TIM_SetCompare2(TIM2, motor[1]);
-            TIM_SetCompare3(TIM2, motor[2]);
-            TIM_SetCompare4(TIM2, motor[3]);
-        }
-        //			else {
-        //			motor[0]=motor[1]=motor[2]=motor[3]=1000;
-        //					MOTOR_lock();
-        //			}
-        OSTimeDly(1);  //任务周期1ms
-    }
-}
+//        //计算点击控制
+//        attitudecontrol(&control, &setpoint, &state, time, &sensordata);
+//        //设置电机转速
+//        // MOTOR_control(&control);
+//        //
+//        motor[0] = LIM(control.throttle - control.roll - control.pitch + control.yaw);
+//        motor[1] = LIM(control.throttle - control.roll + control.pitch - control.yaw);
+//        motor[2] = LIM(control.throttle + control.roll + control.pitch + control.yaw);
+//        motor[3] = LIM(control.throttle + control.roll - control.pitch - control.yaw);
+
+//        for (int i = 0; i < 4;i++){
+//            Motor_Set(motor[i], i + 1);
+//        }
+
+//            //			OSQPost(mm,&remotor[ptr]);
+//            //			ptr=(ptr+1)%128;
+////            if (1) {
+////                TIM_SetCompare1(TIM2, motor[0]);  // 如果电机解锁
+////                TIM_SetCompare2(TIM2, motor[1]);
+////                TIM_SetCompare3(TIM2, motor[2]);
+////                TIM_SetCompare4(TIM2, motor[3]);
+////            }
+//        //			else {
+//        //			motor[0]=motor[1]=motor[2]=motor[3]=1000;
+//        //					MOTOR_lock();
+//        //			}
+//        OSTimeDly(1);  //任务周期1ms
+//    }
+//}
+
 int LIM(double value)
 {
     if (value > 2000)

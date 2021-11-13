@@ -99,14 +99,14 @@
 
 
                                        /* ---------------- MUTUAL EXCLUSION SEMAPHORES --------------- */
-#define OS_MUTEX_EN               0u   /* Enable (1) or Disable (0) code generation for MUTEX          */
+#define OS_MUTEX_EN               1u   /* Enable (1) or Disable (0) code generation for MUTEX          */
 #define OS_MUTEX_ACCEPT_EN        0u   /*     Include code for OSMutexAccept()                         */
 #define OS_MUTEX_DEL_EN           0u   /*     Include code for OSMutexDel()                            */
 #define OS_MUTEX_QUERY_EN         0u   /*     Include code for OSMutexQuery()                          */
 
 
                                        /* ---------------------- MESSAGE QUEUES ---------------------- */
-#define OS_Q_EN                   0u   /* Enable (1) or Disable (0) code generation for QUEUES         */
+#define OS_Q_EN                   1u   /* Enable (1) or Disable (0) code generation for QUEUES         */
 #define OS_Q_ACCEPT_EN            0u   /*     Include code for OSQAccept()                             */
 #define OS_Q_DEL_EN               0u   /*     Include code for OSQDel()                                */
 #define OS_Q_FLUSH_EN             0u   /*     Include code for OSQFlush()                              */
