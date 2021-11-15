@@ -13,7 +13,7 @@
 // Variable definitions
 
 // extern volatile float q0 = 1.0f, q1 = 0.0f, q2 = 0.0f, q3 = 0.0f; // quaternion of sensor frame relative to auxiliary frame
-// extern volatile float pitch = 0.0f, roll = 0.0f, yaw = 0.0f;
+// extern volatile float Pitch = 0.0f, Roll = 0.0f, Yaw = 0.0f;
 
 //---------------------------------------------------------------------------------------------------
 // Function declarations
@@ -137,9 +137,9 @@ void MadgwickAHRSupdate(float gx, float gy, float gz, float ax, float ay, float 
     q3 *= recipNorm;
 
     const float q0q0MinusHalf = q0 * q0 - 0.5f;
-    roll                      = atan2f(q2 * q3 + q0 * q1, q0q0MinusHalf + q3 * q3) * 57.3f;
-    pitch                     = -1.0f * asinf(2.0f * (q1 * q3 - q0 * q2)) * 57.3f;
-    yaw                       = atan2f(q1 * q2 + q0 * q3, q0q0MinusHalf + q1 * q1) * 57.3f;
+    Roll                      = atan2f(q2 * q3 + q0 * q1, q0q0MinusHalf + q3 * q3) * 57.3f;
+    Pitch                     = -1.0f * asinf(2.0f * (q1 * q3 - q0 * q2)) * 57.3f;
+    Yaw                       = atan2f(q1 * q2 + q0 * q3, q0q0MinusHalf + q1 * q1) * 57.3f;
 }
 
 //---------------------------------------------------------------------------------------------------
@@ -213,9 +213,9 @@ void MadgwickAHRSupdateIMU(float gx, float gy, float gz, float ax, float ay, flo
     q3 *= recipNorm;
 
     const float q0q0MinusHalf = q0 * q0 - 0.5f;
-    roll                      = atan2f(q2 * q3 + q0 * q1, q0q0MinusHalf + q3 * q3) * 57.3f;
-    pitch                     = -1.0f * asinf(2.0f * (q1 * q3 - q0 * q2)) * 57.3f;
-    yaw                       = atan2f(q1 * q2 + q0 * q3, q0q0MinusHalf + q1 * q1) * 57.3f;
+    Roll                      = atan2f(q2 * q3 + q0 * q1, q0q0MinusHalf + q3 * q3) * 57.3f;
+    Pitch                     = -1.0f * asinf(2.0f * (q1 * q3 - q0 * q2)) * 57.3f;
+    Yaw                       = atan2f(q1 * q2 + q0 * q3, q0q0MinusHalf + q1 * q1) * 57.3f;
 }
 
 #define a 1
@@ -283,9 +283,9 @@ void MadgwickAHRSupdateIMUu(float gx, float gy, float gz, float ax, float ay, fl
     q3 *= recipNorm;
 
     const float q0q0MinusHalf = q0 * q0 - 0.5f;
-    roll                      = atan2f(q2 * q3 + q0 * q1, q0q0MinusHalf + q3 * q3) * 57.3f;
-    pitch                     = -1.0f * asinf(2.0f * (q1 * q3 - q0 * q2)) * 57.3f;
-    yaw                       = atan2f(q1 * q2 + q0 * q3, q0q0MinusHalf + q1 * q1) * 57.3f;
+    Roll                      = atan2f(q2 * q3 + q0 * q1, q0q0MinusHalf + q3 * q3) * 57.3f;
+    Pitch                     = -1.0f * asinf(2.0f * (q1 * q3 - q0 * q2)) * 57.3f;
+    Yaw                       = atan2f(q1 * q2 + q0 * q3, q0q0MinusHalf + q1 * q1) * 57.3f;
 }
 
 #define twoKpDef (2.0f * 5.f)     // 2 * proportional gain
@@ -396,9 +396,9 @@ void MahonyAHRSupdate(float gx, float gy, float gz, float ax, float ay, float az
     q3 *= recipNorm;
 
     const float q0q0MinusHalf = q0 * q0 - 0.5f;
-    roll                      = atan2f(q2 * q3 + q0 * q1, q0q0MinusHalf + q3 * q3) * 57.3f;
-    pitch                     = -1.0f * asinf(2.0f * (q1 * q3 - q0 * q2)) * 57.3f;
-    yaw                       = atan2f(q1 * q2 + q0 * q3, q0q0MinusHalf + q1 * q1) * 57.3f;
+    Roll                      = atan2f(q2 * q3 + q0 * q1, q0q0MinusHalf + q3 * q3) * 57.3f;
+    Pitch                     = -1.0f * asinf(2.0f * (q1 * q3 - q0 * q2)) * 57.3f;
+    Yaw                       = atan2f(q1 * q2 + q0 * q3, q0q0MinusHalf + q1 * q1) * 57.3f;
 }
 
 //---------------------------------------------------------------------------------------------------
@@ -470,9 +470,9 @@ void MahonyAHRSupdateIMU(float gx, float gy, float gz, float ax, float ay, float
     q3 *= recipNorm;
 
     const float q0q0MinusHalf = q0 * q0 - 0.5f;
-    roll                      = atan2f(q2 * q3 + q0 * q1, q0q0MinusHalf + q3 * q3) * 57.3f;
-    pitch                     = -1.0f * asinf(2.0f * (q1 * q3 - q0 * q2)) * 57.3f;
-    yaw                       = atan2f(q1 * q2 + q0 * q3, q0q0MinusHalf + q1 * q1) * 57.3f;
+    Roll                      = atan2f(q2 * q3 + q0 * q1, q0q0MinusHalf + q3 * q3) * 57.3f;
+    Pitch                     = -1.0f * asinf(2.0f * (q1 * q3 - q0 * q2)) * 57.3f;
+    Yaw                       = atan2f(q1 * q2 + q0 * q3, q0q0MinusHalf + q1 * q1) * 57.3f;
 }
 
 //---------------------------------------------------------------------------------------------------
@@ -515,9 +515,9 @@ void gyroupdate(float gx, float gy, float gz)
     //	q3 *= recipNorm;
 
     //	const float q0q0MinusHalf = q0 * q0 - 0.5f;
-    //	roll = atan2f(q2 * q3 + q0 * q1, q0q0MinusHalf + q3 * q3) * 57.3f;
-    //	pitch = -1.0f * asinf(2.0f * (q1 * q3 - q0 * q2)) * 57.3f;
-    //	yaw = atan2f(q1 * q2 + q0 * q3, q0q0MinusHalf + q1 * q1) * 57.3f;
+    //	Roll = atan2f(q2 * q3 + q0 * q1, q0q0MinusHalf + q3 * q3) * 57.3f;
+    //	Pitch = -1.0f * asinf(2.0f * (q1 * q3 - q0 * q2)) * 57.3f;
+    //	Yaw = atan2f(q1 * q2 + q0 * q3, q0q0MinusHalf + q1 * q1) * 57.3f;
 
     //	r *= 0.5f;
     //	p *= 0.5f;
@@ -529,19 +529,19 @@ void gyroupdate(float gx, float gy, float gz)
     //	q3 = cosf(r) * cosf(p) * sinf(y) - sinf(r) * sinf(p) * cosf(y);
 
     float dr, dp, dy;
-    float sinr  = sinf(roll / 57.3f);
-    float cosr  = cosf(roll / 57.3f);
-    float sinp  = sinf(pitch / 57.3f);
-    float cosp  = cosf(pitch / 57.3f);
+    float sinr  = sinf(Roll / 57.3f);
+    float cosr  = cosf(Roll / 57.3f);
+    float sinp  = sinf(Pitch / 57.3f);
+    float cosp  = cosf(Pitch / 57.3f);
     float cosp1 = 1.0f / cosp;
 
     dr = gx + sinp * sinr * cosp1 * gy + cosr * sinp * cosp1 * gz;
     dp = cosr * gy - sinr * gz;
     dy = sinr * gy * cosp1 + cosr * gz * cosp1;
 
-    roll += dr * (1.0f / sampleFreq) * 57.3f;
-    pitch += dp * (1.0f / sampleFreq) * 57.3f;
-    yaw += dy * (1.0f / sampleFreq) * 57.3f;
+    Roll += dr * (1.0f / sampleFreq) * 57.3f;
+    Pitch += dp * (1.0f / sampleFreq) * 57.3f;
+    Yaw += dy * (1.0f / sampleFreq) * 57.3f;
 }
 
 float eps;
@@ -609,13 +609,13 @@ void accupdate(float ax, float ay, float az)
     //	} while (eps > 0.1f);
 
     //	const float q0q0MinusHalf = q0 * q0 - 0.5f;
-    //	roll = atan2f(q2 * q3 + q0 * q1, q0q0MinusHalf + q3 * q3) * 57.3f;
-    //	pitch = -1.0f * asinf(2.0f * (q1 * q3 - q0 * q2)) * 57.3f;
-    //	yaw = atan2f(q1 * q2 + q0 * q3, q0q0MinusHalf + q1 * q1) * 57.3f;
+    //	Roll = atan2f(q2 * q3 + q0 * q1, q0q0MinusHalf + q3 * q3) * 57.3f;
+    //	Pitch = -1.0f * asinf(2.0f * (q1 * q3 - q0 * q2)) * 57.3f;
+    //	Yaw = atan2f(q1 * q2 + q0 * q3, q0q0MinusHalf + q1 * q1) * 57.3f;
 
-    roll  = atan2f(ay, az) * 57.3f;
-    pitch = -1.0f * atan2f(ax, sqrt(ay * ay + az * az)) * 57.3f;
-    yaw   = 0.f;
+    Roll  = atan2f(ay, az) * 57.3f;
+    Pitch = -1.0f * atan2f(ax, sqrt(ay * ay + az * az)) * 57.3f;
+    Yaw   = 0.f;
 }
 
 #define ut 0.01f
@@ -636,10 +636,10 @@ void  accmagupdate(float ax, float ay, float az, float mx, float my, float mz)
     hx = mx * cosf(p) + my * sinf(r) * sinf(p) + mz * cosf(r) * sinf(p);
     hy = my * cosf(r) - mz * sinf(r);
 
-    roll  = r * 57.3f;
-    pitch = p * 57.3f;
-    yaw   = -y * 57.3f;
-    // yaw = 0.f;
+    Roll  = r * 57.3f;
+    Pitch = p * 57.3f;
+    Yaw   = -y * 57.3f;
+    // Yaw = 0.f;
 
     //	float recipNorm;
     //	float f1, f2, f3;
@@ -696,14 +696,16 @@ void  accmagupdate(float ax, float ay, float az, float mx, float my, float mz)
 
     //		// Gradient decent algorithm corrective step
     //		s0 = -_2q2 * (2.0f * q1q3 - _2q0q2 - ax) + _2q1 * (2.0f * q0q1 + _2q2q3 - ay) - _2bz * q2 * (_2bx * (0.5f - q2q2 - q3q3) + _2bz * (q1q3 - q0q2) -
-    //mx)
+    // mx)
     //+ (-_2bx * q3 + _2bz * q1) * (_2bx * (q1q2 - q0q3) + _2bz * (q0q1 + q2q3) - my) + _2bx * q2 * (_2bx * (q0q2 + q1q3) + _2bz * (0.5f - q1q1 - q2q2) - mz);
     //		s1 = _2q3 * (2.0f * q1q3 - _2q0q2 - ax) + _2q0 * (2.0f * q0q1 + _2q2q3 - ay) - 4.0f * q1 * (1 - 2.0f * q1q1 - 2.0f * q2q2 - az) + _2bz * q3 * (_2bx
     //* (0.5f - q2q2 - q3q3) + _2bz * (q1q3 - q0q2) - mx) + (_2bx * q2 + _2bz * q0) * (_2bx * (q1q2 - q0q3) + _2bz * (q0q1 + q2q3) - my) + (_2bx * q3 - _4bz *
-    //q1)
-    //* (_2bx * (q0q2 + q1q3) + _2bz * (0.5f - q1q1 - q2q2) - mz); 		s2 = -_2q0 * (2.0f * q1q3 - _2q0q2 - ax) + _2q3 * (2.0f * q0q1 + _2q2q3 - ay) - 4.0f * q2
+    // q1)
+    //* (_2bx * (q0q2 + q1q3) + _2bz * (0.5f - q1q1 - q2q2) - mz); 		s2 = -_2q0 * (2.0f * q1q3 - _2q0q2 - ax) + _2q3 * (2.0f * q0q1 + _2q2q3 - ay) - 4.0f *
+    //q2
     //* (1 - 2.0f * q1q1 - 2.0f * q2q2 - az) + (-_4bx * q2 - _2bz * q0) * (_2bx * (0.5f - q2q2 - q3q3) + _2bz * (q1q3 - q0q2) - mx) + (_2bx * q1 + _2bz * q3) *
-    //(_2bx * (q1q2 - q0q3) + _2bz * (q0q1 + q2q3) - my) + (_2bx * q0 - _4bz * q2) * (_2bx * (q0q2 + q1q3) + _2bz * (0.5f - q1q1 - q2q2) - mz); 		s3 = _2q1
+    //(_2bx * (q1q2 - q0q3) + _2bz * (q0q1 + q2q3) - my) + (_2bx * q0 - _4bz * q2) * (_2bx * (q0q2 + q1q3) + _2bz * (0.5f - q1q1 - q2q2) - mz); 		s3 =
+    //_2q1
     //* (2.0f * q1q3 - _2q0q2 - ax) + _2q2 * (2.0f * q0q1 + _2q2q3 - ay) + (-_4bx * q3 + _2bz * q1) * (_2bx * (0.5f - q2q2 - q3q3) + _2bz * (q1q3 - q0q2) - mx)
     //+
     //(-_2bx * q0 + _2bz * q2) * (_2bx * (q1q2 - q0q3) + _2bz * (q0q1 + q2q3) - my) + _2bx * q1 * (_2bx * (q0q2 + q1q3) + _2bz * (0.5f - q1q1 - q2q2) - mz);
@@ -734,9 +736,9 @@ void  accmagupdate(float ax, float ay, float az, float mx, float my, float mz)
     //	} while (eps > 0.08f);
 
     //	const float q0q0MinusHalf = q0 * q0 - 0.5f; // calculate common terms to avoid repeated operations
-    //	roll = atan2f(q2 * q3 + q0 * q1, q0q0MinusHalf + q3 * q3) * 57.3f;
-    //	pitch = -1.0f * asinf(2.0f * (q1 * q3 - q0 * q2)) * 57.3f;
-    //	yaw = atan2f(q1 * q2 + q0 * q3, q0q0MinusHalf + q1 * q1) * 57.3f;
+    //	Roll = atan2f(q2 * q3 + q0 * q1, q0q0MinusHalf + q3 * q3) * 57.3f;
+    //	Pitch = -1.0f * asinf(2.0f * (q1 * q3 - q0 * q2)) * 57.3f;
+    //	Yaw = atan2f(q1 * q2 + q0 * q3, q0q0MinusHalf + q1 * q1) * 57.3f;
 }
 
 #define k 0.8f
@@ -745,25 +747,25 @@ void whzupdate_euler(float gx, float gy, float gz, float ax, float ay, float az,
 {
     float dr, dp, dy;
 
-    float sinr  = sinf(roll / 57.3f);
-    float cosr  = cosf(roll / 57.3f);
-    float sinp  = sinf(pitch / 57.3f);
-    float cosp  = cosf(pitch / 57.3f);
+    float sinr  = sinf(Roll / 57.3f);
+    float cosr  = cosf(Roll / 57.3f);
+    float sinp  = sinf(Pitch / 57.3f);
+    float cosp  = cosf(Pitch / 57.3f);
     float cosp1 = 1.0f / cosp;
 
     dr = gx + sinp * sinr * cosp1 * gy + cosr * sinp * cosp1 * gz;
     dp = cosr * gy - sinr * gz;
     dy = sinr * gy * cosp1 + cosr * gz * cosp1;
 
-    float rw = dr * (1.0f / sampleFreq) * 57.3f + roll;
-    float pw = dp * (1.0f / sampleFreq) * 57.3f + pitch;
-    float yw = dy * (1.0f / sampleFreq) * 57.3f + yaw;
+    float rw = dr * (1.0f / sampleFreq) * 57.3f + Roll;
+    float pw = dp * (1.0f / sampleFreq) * 57.3f + Pitch;
+    float yw = dy * (1.0f / sampleFreq) * 57.3f + Yaw;
 
     float rg = atan2f(ay, az);
     float pg = -1.0f * atan2f(ax, sqrtf(ay * ay + az * az));
     // float yg = atan2f(my * cosf(rg) - mz * sinf(rg), mx * cosf(pg) + my * sinf(rg) * sinf(pg) + mz * cosf(rg) * sinf(pg));
-    float yg = atan2f(my * cosf(roll / 57.3f) - mz * sinf(roll / 57.3f),
-                      mx * cosf(pitch / 57.3f) + my * sinf(roll / 57.3f) * sinf(pitch / 57.3f) + mz * cosf(roll / 57.3f) * sinf(pitch / 57.3f));
+    float yg = atan2f(my * cosf(Roll / 57.3f) - mz * sinf(Roll / 57.3f),
+                      mx * cosf(Pitch / 57.3f) + my * sinf(Roll / 57.3f) * sinf(Pitch / 57.3f) + mz * cosf(Roll / 57.3f) * sinf(Pitch / 57.3f));
 
     rg *= 57.3f;
     pg *= 57.3f;
@@ -774,10 +776,10 @@ void whzupdate_euler(float gx, float gy, float gz, float ax, float ay, float az,
     t  = k / (w + k);
     t1 = 1 - t;
 
-    roll  = t1 * rw + t * rg;
-    pitch = t1 * pw + t * pg;
-    //	yaw = t1 * yw + t * yg;
-    yaw = yw;
+    Roll  = t1 * rw + t * rg;
+    Pitch = t1 * pw + t * pg;
+    //	Yaw = t1 * yw + t * yg;
+    Yaw = yw;
 }
 
 void whzupdate_quaternion(float gx, float gy, float gz, float ax, float ay, float az, float mx, float my, float mz)
@@ -877,9 +879,9 @@ void whzupdate_quaternion(float gx, float gy, float gz, float ax, float ay, floa
     q3 = t1 * qw3 + t * qd3;
 
     const float q0q0MinusHalf = q0 * q0 - 0.5f;
-    roll                      = atan2f(q2 * q3 + q0 * q1, q0q0MinusHalf + q3 * q3) * 57.3f;
-    pitch                     = -1.0f * asinf(2.0f * (q1 * q3 - q0 * q2)) * 57.3f;
-    yaw                       = atan2f(q1 * q2 + q0 * q3, q0q0MinusHalf + q1 * q1) * 57.3f;
+    Roll                      = atan2f(q2 * q3 + q0 * q1, q0q0MinusHalf + q3 * q3) * 57.3f;
+    Pitch                     = -1.0f * asinf(2.0f * (q1 * q3 - q0 * q2)) * 57.3f;
+    Yaw                       = atan2f(q1 * q2 + q0 * q3, q0q0MinusHalf + q1 * q1) * 57.3f;
 }
 //====================================================================================================
 // END OF CODE

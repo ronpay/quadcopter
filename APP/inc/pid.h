@@ -1,80 +1,60 @@
-#ifndef _PID_H
-#define _PID_H
+/**
+ * @file  		pid.h
+ * @brief 		PID封装库头文件
+ * @author   	Haozhe Tang
+ * @date     	2021-7-22
+ * @version   	A001
+ * @copyright 	Haozhe Tang
+ */
 
-#define INLIMIT_RATE 50   //速度积分限幅
-#define INLIMIT_ANGLE 30  // 角度积分限幅
+#ifndef __PID_H
+#define __PID_H
 
-#define ANGLE_PID_RATE 250                   //角度环频率
-#define ANGLE_PID_DT (1.0 / ANGLE_PID_RATE)  //角度环周期
-#define RATE_PID_RATE 500                    //角速度环频率
-#define RATE_PID_DT (1.0 / RATE_PID_RATE)    //角速度环周期
+#include <stdint.h>
 
-typedef struct  //定义记录每个方向pid各量的结构
+typedef float Target_Type;
+typedef float Feedback_Type;
+typedef float Error_Type;
+typedef float Gain_Type;
+typedef float Output_Type;
+
+typedef struct PID
 {
-    float desired;
-    float error;
-    float preerr;
-    float kp;
-    float ki;
-    float kd;
-    float dt;
-    float integ;
-    float deriv;
-    //	biquadFilter_t dFilter;
-} PID_type;
+    Target_Type   Target;
+    Feedback_Type Feedback;
+    Feedback_Type LastFeedback;
+    Feedback_Type PrevFeedback;
+    Error_Type    Err;           // �������
+    Error_Type    LastErr;       // �������
+    Error_Type    PrevErr;       // ���������
+    Error_Type    ErrDiff;       // �����������
+    Error_Type    ErrAccu;       // ����ۻ�ֵ
+    Error_Type    Err_Max;       // һ�ֵ�PID���ֻ���������ֵ
+    Error_Type    Accu_Err_Max;  // ���ֻ��ڵ����ֵ, �����޷�
+    Gain_Type     Kp;
+    Gain_Type     Ki;
+    Gain_Type     Kd;
+    Output_Type   Delta;       // ����PID���������
+    Output_Type   Output;      // λ��PID������PID�����
+    Output_Type   Output_Max;  // PID��������ֵ, ����޷�
+    void (*Set_PID_Arg_Handler)(struct PID*, Gain_Type*);
+    void (*Update_Target_Handler)(struct PID*);
+    void (*Update_Feedback_Handler)(struct PID*);
+    void (*Update_Err_Handler)(struct PID*);
+    void (*Calculate_Output_Handler)(struct PID*);
+} PID_TYPE, *p_PID_TYPE;
 
-typedef struct  //最终的混控设定值
-{
-    float yaw;
-    float pitch;
-    float roll;
-    float throttle;
-} control_t;
+void PID_Init(p_PID_TYPE PID);
+void Set_PID_Arg(p_PID_TYPE PID, Gain_Type* K_pid);
 
-typedef struct  //期望的角度值
-{
-    float yaw;
-    float pitch;
-    float roll;
-} desired_t;
+void PID_Cycle(p_PID_TYPE PID);
 
-typedef union
-{
-    struct
-    {
-        float x;
-        float y;
-        float z;
-    };
-    float axis[3];
-} Axis3f;
+void Calculate_Position_PID_Output(p_PID_TYPE PID);
+void Calculate_Delta_PID_Output(p_PID_TYPE PID);
 
-typedef struct  //传感器数据，用于角速度环
-{
-    Axis3f acc;   //各方向重力加速度分量
-    Axis3f gyro;  //各方向的角速度
-    Axis3f mag;   //磁力计参数
-} sensor_t;
+void Update_Target(p_PID_TYPE PID);
+void Update_Feedback(p_PID_TYPE PID);
+void Update_Err(p_PID_TYPE PID);
 
-typedef struct
-{
-    float throttle;
-    float yaw;
-    float pitch;
-    float roll;
-} set_t;
-
-typedef struct attitude  //飞行器当前各方向角度值，用于角度环
-{
-    float pitch;
-    float roll;
-    float yaw;
-} Attitude;
-
-int   LIM(double value);
-void  controlinit(control_t* c);
-void  pidinit(PID_type* pid, float dt, float cutoffFreq);
-void  attitudecontrol(control_t* control, set_t* setpoint, Attitude* state, int time, sensor_t* sensor);
-float anglePID(PID_type* pid, float state, float angledesired, float dt);
-float ratePID(PID_type* pid, float state, float angledesired, float dt);
-#endif
+void PID_DEBUG_ANO_Send(Target_Type target, Feedback_Type* real);
+#endif /*__PID_H*/

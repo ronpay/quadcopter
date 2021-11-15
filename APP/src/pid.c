@@ -1,243 +1,141 @@
+/**
+ * @file  		pid.c
+ * @brief 		PID封装库
+ * @author   	Haozhe Tang
+ * @date     	2021-7-22
+ * @version   	A001
+ * @copyright 	Haozhe Tang
+ */
+
 #include "pid.h"
-#include "motor.h"
-#include "ucos_ii.h"
 
-desired_t angledesired;
-desired_t ratedesired;
-set_t     setpoint;
-sensor_t  sensordata;
-Attitude  state;
-control_t control;
-
-// GY86 所需要的数组
-extern float          Acel_mps[3];
-extern short          Acel[3];
-extern float          Gyro_dps[3];
-extern short          Gyro[3];
-extern short          Mag[3];
-extern volatile float Mag_gs[3];
-extern volatile float Temp;
-extern volatile float pitch, roll, yaw;
-extern double         Duty[6];
-
-PID_type PID_angle_roll = {
-    .kp = 1.0,
-    .ki = 0.0,
-    .kd = 0.0,
-};
-
-PID_type PID_angle_pitch = {
-    .kp = 0.0,
-    .ki = 0.0,
-    .kd = 0.0,
-};
-
-PID_type PID_angle_yaw = {
-    .kp = 0.0,
-    .ki = 0.0,
-    .kd = 0.0,
-};
-
-PID_type PID_rate_roll = {
-    .kp = 1.75,
-    .ki = 0.0,
-    .kd = 0.0,
-};
-
-PID_type PID_rate_pitch = {
-    .kp = 0.0,
-    .ki = 0.0,
-    .kd = 0.0,
-};
-
-PID_type PID_rate_yaw = {
-    .kp = 0.0,
-    .ki = 0.0,
-    .kd = 0.0,
-};
-
-void pidinit(PID_type* pid, float dt, float cutoffFreq)
+void PID_Init(p_PID_TYPE PID)
 {
-    pid->error   = 0;
-    pid->preerr  = 0;
-    pid->desired = 0;
-    pid->dt      = dt;
-    // biquadFilterInitLPF(&pid->dFilter, (1.0f/dt), cutoffFreq);
+    PID->Set_PID_Arg_Handler = Set_PID_Arg;
+    PID->Update_Err_Handler  = Update_Err;
 }
 
-void controlinit(control_t* c)
+void Set_PID_Arg(p_PID_TYPE PID, Gain_Type* K_pid)
 {
-    pidinit(&PID_angle_roll, ANGLE_PID_DT, 0);
-    pidinit(&PID_angle_pitch, ANGLE_PID_DT, 0);
-    pidinit(&PID_angle_yaw, ANGLE_PID_DT, 0);
-    pidinit(&PID_rate_roll, RATE_PID_DT, 0);
-    pidinit(&PID_rate_pitch, RATE_PID_DT, 0);
-    pidinit(&PID_rate_yaw, RATE_PID_DT, 0);
-    c->pitch    = 0;
-    c->roll     = 0;
-    c->throttle = 1000;
-    c->yaw      = 0;
-}
-void attitudecontrol(control_t* control, set_t* setpoint, Attitude* state, int time, sensor_t* sensor)
-{
-    //角度环
-    //横滚角和俯仰角直接根据摇杆的状态进行期望值得设定
-    angledesired.roll  = setpoint->roll;
-    angledesired.pitch = setpoint->pitch;
-
-    //偏航角叠加对应摇杆的状态，并且在1s秒转动摇杆对应的角度
-    angledesired.yaw += setpoint->yaw / ANGLE_PID_RATE;
-    if (angledesired.yaw > 180.0f)
-        angledesired.yaw -= 360.0f;
-    if (angledesired.yaw < -180.0f)
-        angledesired.yaw += 360.0f;
-    // printf("  angledesired yaw:%f\n",angledesired.yaw);
-    // printf("  setpoint->yaw: %f\n",setpoint->yaw);
-
-    //角度PID
-    ratedesired.roll  = anglePID(&PID_angle_roll, state->roll, angledesired.roll, ANGLE_PID_DT);
-    ratedesired.pitch = anglePID(&PID_angle_pitch, state->pitch, angledesired.pitch, ANGLE_PID_DT);
-    ratedesired.yaw   = anglePID(&PID_angle_yaw, state->yaw, angledesired.yaw, ANGLE_PID_DT);
-
-    //角速度PID
-    control->roll     = ratePID(&PID_rate_roll, sensor->gyro.x, ratedesired.roll, RATE_PID_DT);
-    control->pitch    = ratePID(&PID_rate_pitch, sensor->gyro.y, ratedesired.pitch, RATE_PID_DT);
-    control->yaw      = ratePID(&PID_rate_yaw, sensor->gyro.z, ratedesired.yaw, RATE_PID_DT);
-    control->throttle = setpoint->throttle;
+    PID->Kp = K_pid[0];
+    PID->Ki = K_pid[1];
+    PID->Kd = K_pid[2];
 }
 
-float anglePID(PID_type* pid, float state, float angledesired, float dt)
+// 计算位置式PID
+void Calculate_Position_PID_Output(p_PID_TYPE PID)
 {
-    float ans;
-    pid->error = angledesired - state;
-    //主要针对航向角，因为航向有可能无视极限继续转动，以顺时针转动为例，当由180到达负角度时，其实只正向转动了一点点，但是error却是大于180
-    if (pid->error > 180.0f) {
-        pid->error -= 360.0f;
-    }
-    else if (pid->error < -180.0) {
-        pid->error += 360.0f;
-    }
-    pid->integ += pid->error * pid->dt;
-    pid->deriv  = (pid->error - pid->preerr) / pid->dt;
-    pid->preerr = pid->error;
-    //积分限幅
-    if (pid->integ > INLIMIT_ANGLE) {
-        pid->integ = INLIMIT_ANGLE;
-    }
-    else if (pid->integ < -INLIMIT_ANGLE) {
-        pid->integ = -INLIMIT_ANGLE;
-    }
+    PID->Output = PID->Kp * PID->Err + PID->Ki * PID->ErrAccu + PID->Kd * PID->ErrDiff;
+    //	printf("PID->Output %d\n", PID->Output);
 
-    ans = pid->kp * pid->error + pid->ki * pid->integ;
-    // ans=pid->kp*pid->error+pid->ki*pid->integ+pid->kd*pid->deriv;
-    return ans;
+    if (PID->Output > PID->Output_Max)
+        PID->Output = PID->Output_Max;
+    else if (PID->Output < (-1) * PID->Output_Max)
+        PID->Output = (-1) * PID->Output_Max;
 }
 
-float ratePID(PID_type* pid, float state, float angledesired, float dt)
+// 计算增量式PID
+void Calculate_Delta_PID_Output(p_PID_TYPE PID)
 {
-    float ans;
-    pid->error = angledesired - state;
-    pid->integ += pid->error * pid->dt;
-    pid->deriv = (pid->error - pid->preerr) / pid->dt;
-    //  x++;
-    //	if(x%1000==0)printf("%d\n",x);
-    //	mmtt=(pid->error-pid->preerr);
+    PID->Delta = PID->Kp * PID->ErrDiff + PID->Ki * PID->Err + PID->Kd * (PID->Err - 2 * PID->LastErr + PID->PrevErr);
+    //	printf("PID->Delta %d\n", PID->Delta);
 
-    // printf("%f\n",pid->error);
-
-    //积分限幅
-    if (pid->integ > INLIMIT_RATE) {
-        pid->integ = INLIMIT_RATE;
-    }
-    else if (pid->integ < -INLIMIT_RATE) {
-        pid->integ = -INLIMIT_RATE;
-    }
-
-    //微分滤波
-    // pid->deriv = biquadFilterApply(&pid->dFilter, pid->deriv);
-
-    pid->preerr = pid->error;
-    ans         = pid->kp * pid->error + pid->ki * pid->integ + pid->kd * pid->deriv;
-    return ans;
+    PID->Output = PID->Output + PID->Delta;
+    //	printf("PID->Output %d\n", PID->Output);
 }
 
-// void PID_TASK(void* pdata)
-//{
-//     int time;  //暂无
-//     int motor[4];
-//     controlinit(&control);
-//     while (1) {
-//         //获取遥控器信息
-//         // getsetpoint();
-
-//        //获取传感器数据
-//        // getsensor();
-
-//        //进行姿态解算
-//        sensordata.acc.x = Acel_mps[0];
-//        sensordata.acc.y = Acel_mps[1];
-//        sensordata.acc.z = Acel_mps[2];
-
-//        sensordata.gyro.x = Gyro_dps[0];
-//        sensordata.gyro.y = Gyro_dps[1];
-//        sensordata.gyro.z = Gyro_dps[2];
-
-//        sensordata.mag.x = Mag_gs[0];
-//        sensordata.mag.y = Mag_gs[1];
-//        sensordata.mag.z = Mag_gs[2];
-
-//        state.yaw   = yaw;
-//        state.roll  = roll;
-//        state.pitch = pitch;
-
-//        setpoint.throttle = Duty[0] - 1500;
-//        setpoint.yaw      = Duty[1] - 1500;
-//        setpoint.pitch = Duty[2] - 1500;
-//        setpoint.roll = Duty[3] - 1500;
-
-//        //			if(TIME_TODO(ATTITUDE_ESTIMAT_RATE,time)){
-//        //				imuUpdate(sensordata.acc,sensordata.gyro,&state,ATTITUDE_ESTIMAT_DT);
-//        //				float x=state.pitch;
-//        //				state.pitch=state.roll;
-//        //				state.roll=x;
-//        //			}
-
-//        //计算点击控制
-//        attitudecontrol(&control, &setpoint, &state, time, &sensordata);
-//        //设置电机转速
-//        // MOTOR_control(&control);
-//        //
-//        motor[0] = LIM(control.throttle - control.roll - control.pitch + control.yaw);
-//        motor[1] = LIM(control.throttle - control.roll + control.pitch - control.yaw);
-//        motor[2] = LIM(control.throttle + control.roll + control.pitch + control.yaw);
-//        motor[3] = LIM(control.throttle + control.roll - control.pitch - control.yaw);
-
-//        for (int i = 0; i < 4;i++){
-//            Motor_Set(motor[i], i + 1);
-//        }
-
-//            //			OSQPost(mm,&remotor[ptr]);
-//            //			ptr=(ptr+1)%128;
-////            if (1) {
-////                TIM_SetCompare1(TIM2, motor[0]);  // 如果电机解锁
-////                TIM_SetCompare2(TIM2, motor[1]);
-////                TIM_SetCompare3(TIM2, motor[2]);
-////                TIM_SetCompare4(TIM2, motor[3]);
-////            }
-//        //			else {
-//        //			motor[0]=motor[1]=motor[2]=motor[3]=1000;
-//        //					MOTOR_lock();
-//        //			}
-//        OSTimeDly(1);  //任务周期1ms
-//    }
-//}
-
-int LIM(double value)
+void PID_Cycle(p_PID_TYPE PID)
 {
-    if (value > 2000)
-        return 2000;
-    else if (value < 1000)
-        return 1000;
+    // 更新反馈值
+    PID->Update_Feedback_Handler(PID);
+    //	printf("PID->Feedback %f\n", PID->Feedback);
+
+    // 更新目标值
+    PID->Update_Target_Handler(PID);
+    //	printf("PID->Target %f\n", PID->Target);
+
+    // 更新误差值
+    PID->Update_Err_Handler(PID);
+    //	printf("PID->Err %f\n", PID->Err);
+
+    // 计算输出值
+    PID->Calculate_Output_Handler(PID);
+    //	printf("PID->Output %d\n", PID->Output);
+}
+
+void Update_Err(p_PID_TYPE PID)
+{
+    PID->PrevErr = PID->LastErr;
+    //	printf("PID->PrevErr %f\n", PID->PrevErr);
+
+    PID->LastErr = PID->Err;
+    //	printf("PID->LastErr %f\n", PID->LastErr);
+
+    PID->Err = PID->Target - PID->Feedback;
+    //	printf("PID->Err %f\n", PID->Err);
+
+    PID->ErrDiff = PID->Err - PID->LastErr;
+    //	printf("PID->ErrDiff %f\n", PID->ErrDiff);
+
+    if (PID->Err > PID->Err_Max)
+        PID->ErrAccu += PID->Err_Max;
+    else if (PID->Err < -1 * PID->Err_Max)
+        PID->ErrAccu += -1 * PID->Err_Max;
     else
-        return (int)value;
+        PID->ErrAccu += PID->Err;
+
+    // 积分限幅
+    if (PID->Err > PID->Accu_Err_Max)
+        PID->ErrAccu = PID->Accu_Err_Max;
+    else if (PID->Err < -1 * PID->Accu_Err_Max)
+        PID->ErrAccu = -1 * PID->Accu_Err_Max;
+
+    //	printf("PID->ErrAccu %f\n", PID->ErrAccu);
 }
+
+/**********Ϊ������������λ����Э�鶨��ı���****************************/
+// cupΪС��ģʽ�洢��Ҳ�����ڴ洢��ʱ�򣬵�λ������0�ֽڣ���λ��1�ֽ�
+//  #define BYTE0(dwTemp)       (*(char *)(&dwTemp))	 //ȡ��int�ͱ����ĵ��ֽ�
+//  #define BYTE1(dwTemp)       (*((char *)(&dwTemp) + 1))	 //	ȡ�洢�ڴ˱�����һ�ڴ��ֽڵ����ݣ����ֽ�
+//  #define BYTE2(dwTemp)       (*((char *)(&dwTemp) + 2))
+//  #define BYTE3(dwTemp)       (*((char *)(&dwTemp) + 3))
+
+// void PID_DEBUG_ANO_Send(Target_Type target, Feedback_Type* real)
+// {
+// 	unsigned char data_to_send[23] = {0};
+// 	unsigned char i = 0;
+// 	unsigned char cnt = 0;
+// 	unsigned char sum = 0;
+
+// 	data_to_send[cnt++]=0x88;		 //֡ͷ��88
+// 	data_to_send[cnt++]=0xA2;	 	 //�����֣�OXFnֻ�������ݣ�����ʾͼ��0x0n��ʾ���ݺ�ͼ��
+// 	data_to_send[cnt++]=0;	     //��Ҫ�������ݵ��ֽ�������ʱ��0�������ڸ�ֵ��
+
+// 	data_to_send[cnt++] = BYTE3(target);	//���ֽ�
+// 	data_to_send[cnt++] = BYTE2(target);	//���ֽ�
+// 	data_to_send[cnt++] = BYTE1(target);	//���ֽ�
+// 	data_to_send[cnt++] = BYTE0(target);	//���ֽ�
+// 	data_to_send[cnt++] = BYTE3(*real);
+// 	data_to_send[cnt++] = BYTE2(*real);
+// 	data_to_send[cnt++] = BYTE1(*real);
+// 	data_to_send[cnt++] = BYTE0(*real);
+
+// 	data_to_send[cnt++] = BYTE3(*(real + 1));
+// 	data_to_send[cnt++] = BYTE2(*(real + 1));
+// 	data_to_send[cnt++] = BYTE1(*(real + 1));
+// 	data_to_send[cnt++] = BYTE0(*(real + 1));
+// 	data_to_send[cnt++] = 0;
+// 	data_to_send[cnt++] = 0;
+
+// 	data_to_send[cnt++] = 0;
+// 	data_to_send[cnt++] = 0;
+
+// 	data_to_send[2] = cnt - 3;//���������ݵ��ֽ�����
+
+// 	for(i=0;i<cnt;i++)
+// 		sum+=data_to_send[i];
+
+// 	data_to_send[cnt++] = sum;	//����У��λ
+
+// 	HAL_UART_Transmit(&huart1, data_to_send, cnt, 0xffff);
+// }

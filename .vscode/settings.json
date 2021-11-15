@@ -3,6 +3,7 @@
         "*.c": "c",
         "data_transfer.h": "c",
         "math.h": "c",
-        "data_fusion.h": "c"
+        "data_fusion.h": "c",
+        "stdint.h": "c"
     }
 }

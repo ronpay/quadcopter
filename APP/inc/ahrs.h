@@ -14,7 +14,7 @@
 #    define __AHRS_H
 
 #    include "data_fusion.h"
-
+extern volatile float Pitch, Roll, Yaw;
 //----------------------------------------------------------------------------------------------------
 // Variable declaration
 

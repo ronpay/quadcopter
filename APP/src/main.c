@@ -14,8 +14,9 @@
 #include "receiver.h"
 #include "sysTick.h"
 
+OS_EVENT* PIDSem;
 OS_EVENT* SensorSem;
-OS_EVENT* ReceiverSem;
+// OS_EVENT* ReceiverSem;
 extern u8 hm_flag;
 
 // GY86 所需要的数组
@@ -24,36 +25,33 @@ extern short          Acel[3];
 extern float          Gyro_dps[3];
 extern short          Gyro[3];
 extern short          Mag[3];
-extern volatile float Mag_gs[3];
-extern volatile float Temp;
-extern volatile float pitch, roll, yaw;
+extern float          Mag_gs[3];
+extern float          Temp;
+extern volatile float Pitch, Roll, Yaw;
 extern uint16_t       Duty[6];
 // for pid
-extern desired_t angledesired;
-extern desired_t ratedesired;
-extern set_t     setpoint;
-extern sensor_t  sensordata;
-extern Attitude  state;
-extern control_t control;
-extern PID_type  PID_angle_roll;
-extern PID_type  PID_angle_pitch;
-extern PID_type  PID_angle_yaw;
-extern PID_type  PID_rate_roll;
-extern PID_type  PID_rate_pitch;
-extern PID_type  PID_rate_yaw;
+extern PID_TYPE Roll_w_PID, Pitch_w_PID, Yaw_w_PID;
+extern PID_TYPE Roll_PID, Pitch_PID, Yaw_PID;
 
-#define PID_TASK_PRIO 3
+volatile uint16_t Base_CCR;      // 遥控器提供的基准油门
+uint16_t          Fly_Thre_CCR;  // 无人机起飞的最低油门
+uint16_t          Margin_CCR;    // 做姿态需要的油门余量, 防止掉下来
+
+#define PID_INNER_TASK_PRIO 3
+#define PID_OUTER_TASK_PRIO 4
 #define RECEIVER_TASK_PRIO 15
 #define GY86_TASK_PRIO 7
 #define DATA_TRANSFER_TASK_PRIO 62
 #define DATA_FUSION_TASK_PRIO 61
 
-#define PID_STK_SIZE 128
+#define PID_INNER_STK_SIZE 128
+#define PID_OUTER_STK_SIZE 128
 #define GY86_STK_SIZE 128
 #define DATA_TRANSFER_STK_SIZE 128
 #define DATA_FUSION_STK_SIZE 128
 
-OS_STK PID_TASK_STK[PID_STK_SIZE];
+OS_STK PID_INNER_TASK_STK[PID_INNER_STK_SIZE];
+OS_STK PID_OUTER_TASK_STK[PID_OUTER_STK_SIZE];
 OS_STK GY86_TASK_STK[GY86_STK_SIZE];
 OS_STK DATA_TRANSFER_TASK_STK[DATA_TRANSFER_STK_SIZE];
 OS_STK DATA_FUSION_TASK_STK[DATA_FUSION_STK_SIZE];
@@ -101,6 +99,7 @@ void DATA_FUSION_TASK(void* pdata)
 {
     INT8U err;
     while (1) {
+        OSSemPend(SensorSem, 0, &err);
         IMUupdate(Gyro_dps[0], Gyro_dps[1], Gyro_dps[2], Acel_mps[0], Acel_mps[1], Acel_mps[2], Mag_gs[0], Mag_gs[2], Mag_gs[1]);
         // MadgwickAHRSupdate(Gyro_dps[1],Gyro_dps[0],-Gyro_dps[2],-Acel_mps[1],-Acel_mps[0],Acel_mps[2],-Mag_gs[2],-Mag_gs[0],Mag_gs[1]);
         OSTimeDly(5);
@@ -111,7 +110,7 @@ void DATA_TRANSFER_TASK(void* pdata)
 {
     INT8U err;
     while (1) {
-        ANO_DT_Send_Status(roll, pitch, yaw, 0);
+        ANO_DT_Send_Status(Roll, Pitch, Yaw, 0);
         ANO_DT_Send_Senser(Acel_mps[0], Acel_mps[1], Acel_mps[2], Gyro_dps[0], Gyro_dps[1], Gyro_dps[2], 0);
         ANO_DT_Send_Senser2(Mag_gs[0], Mag_gs[2], Mag_gs[1], 0, 0, 0, 0);
         ANO_DT_Send_PWM(Duty[0], Duty[1], Duty[2], Duty[3]);
@@ -124,100 +123,81 @@ void GY86_TASK(void* pdata)
 {
     INT8U err;
     while (1) {
-        OSSemPend(SensorSem, 1000, &err);
-
         Read_Accel_MPS();
         Read_Gyro_DPS();
         Read_Mag_Gs();
+
+        OSSemPost(SensorSem);
 
 //		MPU6050_ReturnTemp(&Temp);
 #if DMP
 // mpu_dmp_get_data(&pitch,&roll,&yaw);
 #endif
-        OSSemPost(SensorSem);
+        // OSSemPost(SensorSem);
 
         OSTimeDly(10);
     }
 }
 
-void MOTOR_TASK(void* pdata)
+// void MOTOR_TASK(void* pdata)
+// {
+//     INT8U err;
+//     while (1) {
+//         OSSemPend(ReceiverSem, 1000, &err);
+//         for (int i = 0; i < 4; i++) {
+//             Motor_Set(Duty[i], i + 1);
+//         }
+//         OSSemPost(ReceiverSem);
+//         OSTimeDly(50);
+//     }
+// }
+
+uint16_t Servo_PWM[4] = {0};
+// 内环任务, 运行频率可以和姿态更新频率保持一致。
+void Quadcopter_Imple_Task(void* pdata)
 {
-    INT8U err;
     while (1) {
-        OSSemPend(ReceiverSem, 1000, &err);
-        for (int i = 0; i < 4; i++) {
-            Motor_Set(Duty[i], i + 1);
+        PID_Cycle(&Roll_w_PID);
+        PID_Cycle(&Pitch_w_PID);
+        PID_Cycle(&Yaw_w_PID);
+
+        /* 给电机分配占空比 */
+        // 电机输出足够起飞且有一定余量做动作时, 设置PWM
+        // TODO: 电机输出分配要根据飞行模式(十字或X), 正反桨位置来调整, 本代码适用飞行模式是X飞行模式, 仅供参考
+        if (Base_CCR > (Fly_Thre_CCR + Margin_CCR)) {
+            Servo_PWM[0] = Base_CCR + Roll_w_PID.Output + Pitch_w_PID.Output - Yaw_w_PID.Output;
+            Servo_PWM[1] = Base_CCR - Roll_w_PID.Output + Pitch_w_PID.Output + Yaw_w_PID.Output;
+            Servo_PWM[2] = Base_CCR + Roll_w_PID.Output - Pitch_w_PID.Output + Yaw_w_PID.Output;
+            Servo_PWM[3] = Base_CCR - Roll_w_PID.Output - Pitch_w_PID.Output - Yaw_w_PID.Output;
         }
-        OSSemPost(ReceiverSem);
-        OSTimeDly(50);
+        // 电机输出不够, 不允许起飞
+        else {
+            for (int i = 0; i < 4; i++)
+                Servo_PWM[i] = 0;
+        }
+
+        // TODO: 将Servo_PWM中的值写入控制电机的TIM相应通道的CCR寄存器
+        // 未实现, 仅作为逻辑示意
+        for (int i = 0; i < 4; i++) {
+            Motor_Set(Servo_PWM[i], i + 1);
+        }
+        OSSemPost(PIDSem);
+        OSTimeDly(3);
     }
 }
 
-void PID_TASK(void* pdata)
+// 外环任务, 运行频率要小于内环频率, 运行频率小于内环的一半计算才有意义, 本人设定 外环频率 : 内环频率 = 1 : 5
+void Quadcopter_Control_Task(void* pdata)
 {
-    int time;  //暂无
-    int motor[4];
-    controlinit(&control);
+    INT8U err;
     while (1) {
-        //获取遥控器信息
-        setpoint.throttle = Duty[0] - 1500;
-        setpoint.yaw      = Duty[1] - 1500;
-        setpoint.pitch    = Duty[2] - 1500;
-        setpoint.roll     = Duty[3] - 1500;
-
-        //获取传感器数据
-        Read_Accel_MPS();
-        Read_Gyro_DPS();
-        Read_Mag_Gs();
-
-        sensordata.acc.x = Acel_mps[0];
-        sensordata.acc.y = Acel_mps[1];
-        sensordata.acc.z = Acel_mps[2];
-
-        sensordata.gyro.x = Gyro_dps[0];
-        sensordata.gyro.y = Gyro_dps[1];
-        sensordata.gyro.z = Gyro_dps[2];
-
-        sensordata.mag.x = Mag_gs[0];
-        sensordata.mag.y = Mag_gs[1];
-        sensordata.mag.z = Mag_gs[2];
-
-        //进行姿态解算
-
-        state.yaw   = yaw;
-        state.roll  = roll;
-        state.pitch = pitch;
-
-        IMUupdate(Gyro_dps[0], Gyro_dps[1], Gyro_dps[2], Acel_mps[0], Acel_mps[1], Acel_mps[2], Mag_gs[0], Mag_gs[2], Mag_gs[1]);
-
-        //			if(TIME_TODO(ATTITUDE_ESTIMAT_RATE,time)){
-        //				imuUpdate(sensordata.acc,sensordata.gyro,&state,ATTITUDE_ESTIMAT_DT);
-        //				float x=state.pitch;
-        //				state.pitch=state.roll;
-        //				state.roll=x;
-        //			}
-
-        //计算点击控制
-        attitudecontrol(&control, &setpoint, &state, time, &sensordata);
-        //设置电机转速
-        // MOTOR_control(&control);
-        //
-        motor[0] = LIM(control.throttle - control.roll - control.pitch + control.yaw);
-        motor[1] = LIM(control.throttle - control.roll + control.pitch - control.yaw);
-        motor[2] = LIM(control.throttle + control.roll + control.pitch + control.yaw);
-        motor[3] = LIM(control.throttle + control.roll - control.pitch - control.yaw);
-
-        for (int i = 0; i < 4; i++) {
-            Motor_Set(motor[i], i + 1);
+        for (int i = 0; i < 5; i++) {
+            OSSemPend(PIDSem, 1000, &err);
         }
-
-        //			OSQPost(mm,&remotor[ptr]);
-        //			ptr=(ptr+1)%128;
-        //			else {
-        //			motor[0]=motor[1]=motor[2]=motor[3]=1000;
-        //					MOTOR_lock();
-        //			}
-        OSTimeDly(1);  //任务周期1ms
+        PID_Cycle(&Roll_PID);
+        PID_Cycle(&Pitch_PID);
+        PID_Cycle(&Yaw_PID);
+        OSTimeDly(3);
     }
 }
 
@@ -238,12 +218,14 @@ int main()
     Delay_s(1);
     OSInit();
 
-    //    SensorSem=OSSemCreate(1);
+    SensorSem = OSSemCreate(0);
     //	ReceiverSem=OSSemCreate(1);
-    OSTaskCreate(PID_TASK, (void*)0, (void*)&PID_TASK_STK[PID_STK_SIZE - 1], PID_TASK_PRIO);
+    PIDSem = OSSemCreate(0);
+    OSTaskCreate(Quadcopter_Imple_Task, (void*)0, (void*)&PID_OUTER_TASK_STK[PID_OUTER_STK_SIZE - 1], PID_OUTER_TASK_PRIO);
+    OSTaskCreate(Quadcopter_Control_Task, (void*)0, (void*)&PID_INNER_TASK_STK[PID_INNER_STK_SIZE - 1], PID_INNER_TASK_PRIO);
     //    OSTaskCreate(GY86_TASK, (void*)0, (void*)&GY86_TASK_STK[GY86_STK_SIZE - 1], GY86_TASK_PRIO);
     OSTaskCreate(DATA_TRANSFER_TASK, (void*)0, (void*)&DATA_TRANSFER_TASK_STK[DATA_TRANSFER_STK_SIZE - 1], DATA_TRANSFER_TASK_PRIO);
-    //    OSTaskCreate(DATA_FUSION_TASK, (void*)0, (void*)&DATA_FUSION_TASK_STK[DATA_FUSION_STK_SIZE - 1], DATA_FUSION_TASK_PRIO);
+    OSTaskCreate(DATA_FUSION_TASK, (void*)0, (void*)&DATA_FUSION_TASK_STK[DATA_FUSION_STK_SIZE - 1], DATA_FUSION_TASK_PRIO);
 
     OSStart();
 }

@@ -2,7 +2,7 @@
 
 float          exInt, eyInt, ezInt;
 volatile float q0 = 1.0f, q1 = 0.0f, q2 = 0.0f, q3 = 0.0f;  // roll,pitch,yaw 都为 0 时对应的四元数值。
-volatile float pitch, roll, yaw;
+volatile float Pitch, Roll, Yaw;
 
 #define Kp 10.0f      // proportional gain governs rate of convergence to accelerometer/magnetometer
 #define Ki 0.008f     // integral gain governs rate of convergence of gyroscope biases
@@ -94,14 +94,14 @@ void IMUupdate(float gx, float gy, float gz, float ax, float ay, float az, float
     q2   = q2 / norm;
     q3   = q3 / norm;
 
-    yaw   = atan2(2 * q1 * q2 + 2 * q0 * q3, -2 * q2 * q2 - 2 * q3 * q3 + 1) * 57.3;  // yaw
-    pitch = asin(-2 * q1 * q3 + 2 * q0 * q2) * 57.3;                                  // pitch
-    roll  = atan2(2 * q2 * q3 + 2 * q0 * q1, -2 * q1 * q1 - 2 * q2 * q2 + 1) * 57.3;  // roll
+    Yaw   = atan2(2 * q1 * q2 + 2 * q0 * q3, -2 * q2 * q2 - 2 * q3 * q3 + 1) * 57.3;  // yaw
+    Pitch = asin(-2 * q1 * q3 + 2 * q0 * q2) * 57.3;                                  // pitch
+    Roll  = atan2(2 * q2 * q3 + 2 * q0 * q1, -2 * q1 * q1 - 2 * q2 * q2 + 1) * 57.3;  // roll
 }
 
 void Conversion_Quaternion_to_Euler(float q0, float q1, float q2, float q3)
 {
-    pitch = asin(-2 * q1 * q3 + 2 * q0 * q2) * 57.3;
-    roll  = atan2(2 * q2 * q3 + 2 * q0 * q1, -2 * q1 * q1 - 2 * q2 * q2 + 1) * 57.3;
-    yaw   = atan2(2 * (q1 * q2 + q0 * q3), q0 * q0 + q1 * q1 - q2 * q2 - q3 * q3) * 57.3;
+    Pitch = asin(-2 * q1 * q3 + 2 * q0 * q2) * 57.3;
+    Roll  = atan2(2 * q2 * q3 + 2 * q0 * q1, -2 * q1 * q1 - 2 * q2 * q2 + 1) * 57.3;
+    Yaw   = atan2(2 * (q1 * q2 + q0 * q3), q0 * q0 + q1 * q1 - q2 * q2 - q3 * q3) * 57.3;
 }

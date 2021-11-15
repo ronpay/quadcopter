@@ -408,6 +408,11 @@
               <FileType>1</FileType>
               <FilePath>..\APP\src\pid.c</FilePath>
             </File>
+            <File>
+              <FileName>quad_pid.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\APP\src\quad_pid.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
