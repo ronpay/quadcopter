@@ -1,9 +1,12 @@
 #include "receiver.h"
 
-volatile uint8_t  captureFlag[6] = {0};  //捕获状态
-volatile uint32_t CapVal[6]      = {0};  //第一次下降沿计数值
-uint16_t          Duty[6];               // 1000-2000
-const int         Cycle = 20000;
+volatile uint8_t         captureFlag[6] = {0};  //捕获状态
+volatile uint32_t        CapVal[6]      = {0};  //第一次下降沿计数值
+uint16_t                 Duty[6];               // 1000-2000
+const int                Cycle = 20000;
+extern volatile float    Pitch_T, Roll_T, Yaw_T;
+const int                Pitch_Range = 30, Roll_Range = 30, Yam_Range = 15;
+extern volatile uint16_t Base_CCR;
 
 void Receiver_Config(void)
 {
@@ -13,6 +16,7 @@ void Receiver_Config(void)
 void Receiver_IRQ_Handler(void)
 {
     int receiverNum;
+    // 油门
     if (TIM_GetITStatus(TIM3, TIM_IT_CC1) != RESET) {
         receiverNum = 0;
 
@@ -27,7 +31,7 @@ void Receiver_IRQ_Handler(void)
             case 1:
                 CapVal[receiverNum] = TIM_GetCapture1(TIM3);
                 Duty[receiverNum]   = CapVal[receiverNum] % Cycle;
-
+                Base_CCR            = Duty[receiverNum];
                 TIM_OC1PolarityConfig(TIM3, TIM_ICPolarity_Rising);
                 captureFlag[receiverNum] = 0;
 
@@ -35,7 +39,7 @@ void Receiver_IRQ_Handler(void)
         }
         TIM_ClearITPendingBit(TIM3, TIM_IT_CC1 | TIM_IT_Update);
     }
-
+    /* Yaw 偏航角 */
     else if (TIM_GetITStatus(TIM3, TIM_IT_CC2) != RESET) {
         receiverNum = 1;
 
@@ -50,6 +54,7 @@ void Receiver_IRQ_Handler(void)
             case 1:
                 CapVal[receiverNum] = TIM_GetCapture2(TIM3);
                 Duty[receiverNum]   = CapVal[receiverNum] % Cycle;
+                Yaw_T               = (Duty[receiverNum] - 1500) / 500 * Yaw_Range;
                 TIM_OC2PolarityConfig(TIM3, TIM_ICPolarity_Rising);
                 captureFlag[receiverNum] = 0;
 
@@ -57,7 +62,7 @@ void Receiver_IRQ_Handler(void)
         }
         TIM_ClearITPendingBit(TIM3, TIM_IT_CC2 | TIM_IT_Update);
     }
-
+    /* Pitch 俯仰角 */
     else if (TIM_GetITStatus(TIM3, TIM_IT_CC3) != RESET) {
         receiverNum = 2;
 
@@ -72,6 +77,7 @@ void Receiver_IRQ_Handler(void)
             case 1:
                 CapVal[receiverNum] = TIM_GetCapture3(TIM3);
                 Duty[receiverNum]   = CapVal[receiverNum] % Cycle;
+                Pitch_T             = (Duty[receiverNum] - 1500) / 500 * Pitch_Range;
                 TIM_OC3PolarityConfig(TIM3, TIM_ICPolarity_Rising);
                 captureFlag[receiverNum] = 0;
 
@@ -79,7 +85,7 @@ void Receiver_IRQ_Handler(void)
         }
         TIM_ClearITPendingBit(TIM3, TIM_IT_CC3 | TIM_IT_Update);
     }
-
+    /* Roll 翻滚角 */
     else if (TIM_GetITStatus(TIM3, TIM_IT_CC4) != RESET) {
         receiverNum = 3;
 
@@ -94,6 +100,7 @@ void Receiver_IRQ_Handler(void)
             case 1:
                 CapVal[receiverNum] = TIM_GetCapture4(TIM3);
                 Duty[receiverNum]   = CapVal[receiverNum] % Cycle;
+                Roll_T              = (Duty[receiverNum] - 1500) / 500 * Roll_Range;
                 TIM_OC4PolarityConfig(TIM3, TIM_ICPolarity_Rising);
                 captureFlag[receiverNum] = 0;
         }

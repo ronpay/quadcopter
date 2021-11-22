@@ -15,12 +15,34 @@ volatile float        Pitch_T, Roll_T, Yaw_T;
 PID_TYPE Roll_w_PID = {0}, Pitch_w_PID = {0}, Yaw_w_PID = {0};
 PID_TYPE Roll_PID = {0}, Pitch_PID = {0}, Yaw_PID = {0};
 
-#define PID_Rate_Err_MAX 180       // ÿ�ֻ����޷�, ����ʵ������޸�
-#define PID_Rate_AccuErr_MAX 1200  // �����޷�, ����ʵ������޸�
-#define PID_Rate_Output_MAX 2000
-#define PID_Angle_Err_MAX 180       // ÿ�ֻ����޷�, ����ʵ������޸�
-#define PID_Angle_AccuErr_MAX 1200  // �����޷�, ����ʵ������޸�
-#define PID_Angle_Output_MAX 2000
+/* 误差限幅是用于限制每次增加的误差 */
+
+/* 角速度 PID 限幅 */
+#define PID_Rate_Roll_Err_MAX 180  // TODO/* 误差限幅 */
+#define PID_Rate_Pitch_Err_MAX 180
+#define PID_Rate_Yaw_Err_MAX 180
+
+#define PID_Rate_Roll_AccuErr_MAX 200 /* 积分限幅 */
+#define PID_Rate_Pitch_AccuErr_MAX 200
+#define PID_Rate_Yaw_AccuErr_MAX 100
+
+#define PID_Rate_Roll_Output_MAX 500 /* 输出限幅 */
+#define PID_Rate_Pitch_Output_MAX 500
+#define PID_Rate_Yaw_Output_MAX 300
+
+/* 角度 PID 限幅 */
+
+#define PID_Angle_Roll_Err_MAX 180  // TODO
+#define PID_Angle_Pitch_Err_MAX 180
+#define PID_Angle_Yaw_Err_MAX 180
+
+#define PID_Angle_Roll_AccuErr_MAX 1200  // TODO
+#define PID_Angle_Pitch_AccuErr_MAX 1200
+#define PID_Angle_Yaw_AccuErr_MAX 1200
+
+#define PID_Angle_Roll_Output_MAX 300
+#define PID_Angle_Pitch_Output_MAX 300
+#define PID_Angle_Yaw_Output_MAX 150
 
 void Gesture_PID_Init(void)
 {
@@ -36,11 +58,11 @@ void Gesture_PID_Init(void)
     // 注册增益设置函数
     Roll_w_PID.Set_PID_Arg_Handler = Set_PID_Arg;
     // 设置误差限幅
-    Roll_w_PID.Err_Max = PID_Angle_Err_MAX;
+    Roll_w_PID.Err_Max = PID_Angle_Roll_Err_MAX;
     // 设置输出限幅
-    Roll_w_PID.Output_Max = PID_Angle_Output_MAX;
+    Roll_w_PID.Output_Max = PID_Angle_Roll_Output_MAX;
     // 设置积分限幅
-    Roll_w_PID.Accu_Err_Max = PID_Angle_AccuErr_MAX;
+    Roll_w_PID.Accu_Err_Max = PID_Angle_Roll_AccuErr_MAX;
     // 设置增益Kp, Ki, Kd
     K_pid[0] = 0;
     K_pid[1] = 0;
@@ -57,11 +79,11 @@ void Gesture_PID_Init(void)
     // 注册增益设置函数
     Pitch_w_PID.Set_PID_Arg_Handler = Set_PID_Arg;
     // 设置误差限幅
-    Roll_w_PID.Err_Max = PID_Angle_Err_MAX;
+    Roll_w_PID.Err_Max = PID_Angle_Pitch_Err_MAX;
     // 设置输出限幅
-    Roll_w_PID.Output_Max = PID_Angle_Output_MAX;
+    Roll_w_PID.Output_Max = PID_Angle_Pitch_Output_MAX;
     // 设置积分限幅
-    Roll_w_PID.Accu_Err_Max = PID_Angle_AccuErr_MAX;
+    Roll_w_PID.Accu_Err_Max = PID_Angle_Pitch_AccuErr_MAX;
     // 设置增益Kp, Ki, Kd
     K_pid[0] = 0;
     K_pid[1] = 0;
@@ -78,11 +100,11 @@ void Gesture_PID_Init(void)
     // 注册增益设置函数
     Yaw_w_PID.Set_PID_Arg_Handler = Set_PID_Arg;
     // 设置误差限幅
-    Roll_w_PID.Err_Max = PID_Angle_Err_MAX;
+    Roll_w_PID.Err_Max = PID_Angle_Yaw_Err_MAX;
     // 设置输出限幅
-    Roll_w_PID.Output_Max = PID_Angle_Output_MAX;
+    Roll_w_PID.Output_Max = PID_Angle_Yaw_Output_MAX;
     // 设置积分限幅
-    Roll_w_PID.Accu_Err_Max = PID_Angle_AccuErr_MAX;
+    Roll_w_PID.Accu_Err_Max = PID_Angle_Yaw_AccuErr_MAX;
     // 设置增益Kp, Ki, Kd
     K_pid[0] = 0;
     K_pid[1] = 0;
@@ -99,11 +121,11 @@ void Gesture_PID_Init(void)
     // 注册增益设置函数
     Roll_PID.Set_PID_Arg_Handler = Set_PID_Arg;
     // 设置误差限幅
-    Roll_PID.Err_Max = PID_Rate_Err_MAX;
+    Roll_PID.Err_Max = PID_Rate_Roll_Err_MAX;
     // 设置输出限幅
-    Roll_PID.Output_Max = PID_Angle_Output_MAX;
+    Roll_PID.Output_Max = PID_Angle_Roll_Output_MAX;
     // 设置积分限幅
-    Roll_PID.Accu_Err_Max = PID_Angle_AccuErr_MAX;
+    Roll_PID.Accu_Err_Max = PID_Angle_Roll_AccuErr_MAX;
     // 设置增益Kp, Ki, Kd
     K_pid[0] = 0;
     K_pid[1] = 0;
@@ -120,11 +142,11 @@ void Gesture_PID_Init(void)
     // 注册增益设置函数
     Pitch_PID.Set_PID_Arg_Handler = Set_PID_Arg;
     // 设置误差限幅
-    Roll_PID.Err_Max = PID_Rate_Err_MAX;
+    Roll_PID.Err_Max = PID_Rate_Pitch_Err_MAX;
     // 设置输出限幅
-    Roll_PID.Output_Max = PID_Angle_Output_MAX;
+    Roll_PID.Output_Max = PID_Angle_Pitch_Output_MAX;
     // 设置积分限幅
-    Roll_PID.Accu_Err_Max = PID_Angle_AccuErr_MAX;
+    Roll_PID.Accu_Err_Max = PID_Angle_Pitch_AccuErr_MAX;
     // 设置增益Kp, Ki, Kd
     K_pid[0] = 0;
     K_pid[1] = 0;
@@ -141,11 +163,11 @@ void Gesture_PID_Init(void)
     // 注册增益设置函数
     Yaw_PID.Set_PID_Arg_Handler = Set_PID_Arg;
     // 设置误差限幅
-    Roll_PID.Err_Max = PID_Rate_Err_MAX;
+    Roll_PID.Err_Max = PID_Rate_Yaw_Err_MAX;
     // 设置输出限幅
-    Roll_PID.Output_Max = PID_Angle_Output_MAX;
+    Roll_PID.Output_Max = PID_Angle_Yaw_Output_MAX;
     // 设置积分限幅
-    Roll_PID.Accu_Err_Max = PID_Angle_AccuErr_MAX;
+    Roll_PID.Accu_Err_Max = PID_Angle_Yaw_AccuErr_MAX;
     // 设置增益Kp, Ki, Kd
     K_pid[0] = 0;
     K_pid[1] = 0;

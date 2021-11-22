@@ -46,6 +46,37 @@ void ANO_DT_Send_Status(float angle_rol, float angle_pit, float angle_yaw, uint8
     ANO_DT_Send_Data(data_to_send, _cnt);
 }
 
+void ANO_DT_Send_Target_Status(float angle_rol, float angle_pit, float angle_yaw)
+{
+    u8   _cnt = 0;
+    vs16 _temp;
+
+    data_to_send[_cnt++] = 0xAA;
+    data_to_send[_cnt++] = 0xFF;
+    data_to_send[_cnt++] = 0x0A;
+    data_to_send[_cnt++] = 0x06;
+
+    _temp                = (angle_rol * 100);
+    data_to_send[_cnt++] = BYTE0(_temp);
+    data_to_send[_cnt++] = BYTE1(_temp);
+    _temp                = (angle_pit * 100);
+    data_to_send[_cnt++] = BYTE0(_temp);
+    data_to_send[_cnt++] = BYTE1(_temp);
+    _temp                = (angle_yaw * 100);
+    data_to_send[_cnt++] = BYTE0(_temp);
+    data_to_send[_cnt++] = BYTE1(_temp);
+
+    u8 sumcheck = 0;
+    u8 addcheck = 0;
+    for (u8 i = 0; i < data_to_send[3] + 4; i++) {
+        sumcheck += data_to_send[i];
+        addcheck += sumcheck;
+    }
+    data_to_send[_cnt++] = sumcheck;
+    data_to_send[_cnt++] = addcheck;
+    ANO_DT_Send_Data(data_to_send, _cnt);
+}
+
 void ANO_DT_Send_Senser(float a_x, float a_y, float a_z, float g_x, float g_y, float g_z, uint8_t sta)
 {
     u8   _cnt = 0;
@@ -153,6 +184,40 @@ void ANO_DT_Send_PWM(uint16_t PWM1, uint16_t PWM2, uint16_t PWM3, uint16_t PWM4)
     data_to_send[_cnt++] = BYTE0(_temp);
     data_to_send[_cnt++] = BYTE1(_temp);
     _temp                = PWM4;
+    data_to_send[_cnt++] = BYTE0(_temp);
+    data_to_send[_cnt++] = BYTE1(_temp);
+
+    u8 sumcheck = 0;
+    u8 addcheck = 0;
+    for (u8 i = 0; i < _cnt; i++) {
+        sumcheck += data_to_send[i];
+        addcheck += sumcheck;
+    }
+    data_to_send[_cnt++] = sumcheck;
+    data_to_send[_cnt++] = addcheck;
+    ANO_DT_Send_Data(data_to_send, _cnt);
+}
+
+void ANO_DT_Send_Control_Status(int16_t PWM_Rol, int16_t PWM_Pit, int16_t PWM_Thr, int16_t PWM_Yaw)
+{
+    u8   _cnt = 0;
+    vs16 _temp;
+
+    data_to_send[_cnt++] = 0xAA;
+    data_to_send[_cnt++] = 0xFF;
+    data_to_send[_cnt++] = 0x21;
+    data_to_send[_cnt++] = 0x08;
+
+    _temp                = PWM_Rol;
+    data_to_send[_cnt++] = BYTE0(_temp);
+    data_to_send[_cnt++] = BYTE1(_temp);
+    _temp                = PWM_Pit;
+    data_to_send[_cnt++] = BYTE0(_temp);
+    data_to_send[_cnt++] = BYTE1(_temp);
+    _temp                = PWM_Thr;
+    data_to_send[_cnt++] = BYTE0(_temp);
+    data_to_send[_cnt++] = BYTE1(_temp);
+    _temp                = PWM_Yaw;
     data_to_send[_cnt++] = BYTE0(_temp);
     data_to_send[_cnt++] = BYTE1(_temp);
 
