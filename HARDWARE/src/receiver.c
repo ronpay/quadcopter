@@ -5,7 +5,7 @@ volatile uint32_t        CapVal[6]      = {0};  //第一次下降沿计数值
 uint16_t                 Duty[6];               // 1000-2000
 const int                Cycle = 20000;
 extern volatile float    Pitch_T, Roll_T, Yaw_T;
-const int                Pitch_Range = 30, Roll_Range = 30, Yam_Range = 15;
+const int                Pitch_Range = 30, Roll_Range = 30, Yaw_Range = 15;
 extern volatile uint16_t Base_CCR;
 
 void Receiver_Config(void)
