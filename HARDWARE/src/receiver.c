@@ -2,7 +2,7 @@
 
 volatile uint8_t         captureFlag[6] = {0};  //捕获状态
 volatile uint32_t        CapVal[6]      = {0};  //第一次下降沿计数值
-uint16_t                 Duty[6];               // 1000-2000
+volatile uint16_t        Duty[6];               // 1000-2000
 const int                Cycle = 20000;
 extern volatile float    Pitch_T, Roll_T, Yaw_T;
 const int                Pitch_Range = 30, Roll_Range = 30, Yaw_Range = 15;

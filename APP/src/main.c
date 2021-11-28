@@ -11,24 +11,26 @@
 #include "mpu6050.h"
 #include "oled.h"
 #include "pid.h"
+#include "quad_pid.h"
 #include "receiver.h"
 #include "sysTick.h"
 
 OS_EVENT* PIDSem;
 OS_EVENT* SensorSem;
+OS_EVENT* I2CSem;
 // OS_EVENT* ReceiverSem;
 extern u8 hm_flag;
 
 // GY86 所需要的数组
-extern float          Acel_mps[3];
-extern int16_t         Acel_raw[3];
-extern float          Gyro_dps[3];
-extern int16_t          Gyro_raw[3];
-extern int16_t          Mag_raw[3];
-extern int16_t          Mag_gs[3];
-extern float          Temp;
-extern volatile float Pitch, Roll, Yaw;
-extern uint16_t       Duty[6];
+extern float             Acel_mps[3];
+extern int16_t           Acel_raw[3];
+extern float             Gyro_dps[3];
+extern int16_t           Gyro_raw[3];
+extern int16_t           Mag_raw[3];
+extern int16_t           Mag_gs[3];
+extern float             Temp;
+extern volatile float    Pitch, Roll, Yaw;
+extern volatile uint16_t Duty[6];
 // for pid
 extern PID_TYPE       Roll_w_PID, Pitch_w_PID, Yaw_w_PID;
 extern PID_TYPE       Roll_PID, Pitch_PID, Yaw_PID;
@@ -40,29 +42,29 @@ uint16_t          Margin_CCR   = 0;  // 做姿态需要的油门余量, 防止�
 
 uint16_t Servo_PWM[4] = {0};
 
-#define PID_INNER_TASK_PRIO 3
-#define PID_OUTER_TASK_PRIO 4
+#define PID_INNER_TASK_PRIO 4
+#define PID_OUTER_TASK_PRIO 3
 #define RECEIVER_TASK_PRIO 15
-#define GY86_TASK_PRIO 7
+#define GY86_TASK_PRIO 9
 #define DATA_TRANSFER_TASK_PRIO 62
-#define DATA_FUSION_TASK_PRIO 61
+#define DATA_FUSION_TASK_PRIO 10
 
-#define PID_INNER_STK_SIZE 128
+#define PID_INNER_STK_SIZE 256
 #define PID_OUTER_STK_SIZE 128
-#define GY86_STK_SIZE 128
+#define GY86_STK_SIZE 256
 #define DATA_TRANSFER_STK_SIZE 128
-#define DATA_FUSION_STK_SIZE 128
+#define DATA_FUSION_STK_SIZE 256
 
-OS_STK PID_INNER_TASK_STK[PID_INNER_STK_SIZE];
-OS_STK PID_OUTER_TASK_STK[PID_OUTER_STK_SIZE];
-OS_STK GY86_TASK_STK[GY86_STK_SIZE];
-OS_STK DATA_TRANSFER_TASK_STK[DATA_TRANSFER_STK_SIZE];
-OS_STK DATA_FUSION_TASK_STK[DATA_FUSION_STK_SIZE];
+static OS_STK PID_INNER_TASK_STK[PID_INNER_STK_SIZE];
+static OS_STK PID_OUTER_TASK_STK[PID_OUTER_STK_SIZE];
+static OS_STK GY86_TASK_STK[GY86_STK_SIZE];
+static OS_STK DATA_TRANSFER_TASK_STK[DATA_TRANSFER_STK_SIZE];
+static OS_STK DATA_FUSION_TASK_STK[DATA_FUSION_STK_SIZE];
 
-#define DMP 1
+#define DMP 0
 #define MOTOR 0
-#define RECEIVER 0
-#define PID 0
+#define RECEIVER 1
+#define PID 1
 
 void INIT_TASK(void* pdata)
 {
@@ -104,27 +106,46 @@ void INIT_TASK(void* pdata)
 #endif
     OLED_CLS();
 #if PID
-    void Gesture_PID_Init();
+    Gesture_PID_Init();
 #endif
-	Quat_Init();
+    Quat_Init();
 }
 
-void DATA_FUSION_TASK(void* pdata)
+void GY86_TASK(void* pdata)
 {
-    INT8U err;
     while (1) {
         Read_Accel_MPS();
         Read_Gyro_DPS();
         Read_Mag_Gs();
+        OSSemPost(SensorSem);
+        OSTimeDly(20);
+    }
+}
+void DATA_FUSION_TASK(void* pdata)
+{
+    INT8U err;
+    while (1) {
+        //			OSSemPend(I2CSem,2,&err);
+        //			  Read_Accel_MPS();
+        //        Read_Gyro_DPS();
+        //        Read_Mag_Gs();
+        //#if OS_CRITICAL_METHOD == 3u /* Allocate storage for CPU status register */
+        //    OS_CPU_SR cpu_sr = 0u;
+        //#endif
+        //		OS_ENTER_CRITICAL();
+
 #if DMP
- mpu_dmp_get_data(&Pitch,&Roll,&Yaw);
+// mpu_dmp_get_data(&Pitch,&Roll,&Yaw);
 #else
-        //        IMUupdate(Gyro_dps[0], Gyro_dps[1], Gyro_dps[2], Acel_mps[0], Acel_mps[1], Acel_mps[2], Mag_gs[2], Mag_gs[0], Mag_gs[1]);
-        Attitude_Update(Gyro_dps[0], Gyro_dps[1], Gyro_dps[2], Acel_mps[0], Acel_mps[1], Acel_mps[2], Mag_gs[0], Mag_gs[1], Mag_gs[2]);
-        // origin        IMUupdate(Gyro_dps[0], Gyro_dps[1], Gyro_dps[2], Acel_mps[0], Acel_mps[1], Acel_mps[2], Mag_gs[0], Mag_gs[2], Mag_gs[1]);
-        //  MadgwickAHRSupdate(Gyro_dps[1],Gyro_dps[0],-Gyro_dps[2],-Acel_mps[1],-Acel_mps[0],Acel_mps[2],-Mag_gs[2],-Mag_gs[0],Mag_gs[1]);
-		#endif
-        OSTimeDly(10);
+        OSSemPend(SensorSem, 2, &err);
+        // IMUupdate(Gyro_dps[0], Gyro_dps[1], Gyro_dps[2], Acel_mps[0], Acel_mps[1], Acel_mps[2], Mag_gs[0], Mag_gs[1], Mag_gs[2]);
+//        Attitude_Update(Gyro_dps[0], Gyro_dps[1], Gyro_dps[2], Acel_mps[0], Acel_mps[1], Acel_mps[2], Mag_gs[0], Mag_gs[1], Mag_gs[2]);
+// origin        IMUupdate(Gyro_dps[0], Gyro_dps[1], Gyro_dps[2], Acel_mps[0], Acel_mps[1], Acel_mps[2], Mag_gs[0], Mag_gs[2], Mag_gs[1]);
+//  MadgwickAHRSupdate(Gyro_dps[1],Gyro_dps[0],-Gyro_dps[2],-Acel_mps[1],-Acel_mps[0],Acel_mps[2],-Mag_gs[2],-Mag_gs[0],Mag_gs[1]);
+#endif
+        //			OSSemPost(I2CSem);
+        //			OS_EXIT_CRITICAL();
+        OSTimeDly(40);
     }
 }
 
@@ -136,12 +157,12 @@ void DATA_TRANSFER_TASK(void* pdata)
 
         ANO_DT_Send_Senser(Acel_mps[0] * 100, Acel_mps[1] * 100, Acel_mps[2] * 100, Gyro_dps[0] * 100, Gyro_dps[1] * 100, Gyro_dps[2] * 100, 0);
         ANO_DT_Send_Senser2(Mag_raw[0], Mag_raw[1], Mag_raw[2], 0, 0, 0, 0);
+        /* 遥控器四通道的量 */
+        ANO_DT_Send_PWM(Duty[0], Duty[1], Duty[2], Duty[3]);
 /* 目标姿态，通过遥控器的数据直接算出 */
 #if PID
         ANO_DT_Send_Target_Status(Roll_T, Pitch_T, Yaw_T);
 
-        /* 遥控器四通道的量 */
-        ANO_DT_Send_PWM(Duty[0], Duty[1], Duty[2], Duty[3]);
         /* PID 计算出来的三个角度的PWM控制量 */
         ANO_DT_Send_Control_Status(Roll_w_PID.Output, Pitch_w_PID.Output, Base_CCR, Yaw_w_PID.Output);
 #endif
@@ -154,6 +175,7 @@ void DATA_TRANSFER_TASK(void* pdata)
 void Quadcopter_Imple_Task(void* pdata)
 {
     while (1) {
+        OSSemPend(PIDSem, 100, NULL);
         PID_Cycle(&Roll_w_PID);
         PID_Cycle(&Pitch_w_PID);
         PID_Cycle(&Yaw_w_PID);
@@ -176,9 +198,9 @@ void Quadcopter_Imple_Task(void* pdata)
         // TODO: 将Servo_PWM中的值写入控制电机的TIM相应通道的CCR寄存器
         // 未实现, 仅作为逻辑示意
         for (int i = 0; i < 4; i++) {
-            Motor_Set(Servo_PWM[i], i + 1);
+            //            Motor_Set(Servo_PWM[i], i + 1);
         }
-        OSSemPost(PIDSem);
+
         OSTimeDly(3);
     }
 }
@@ -188,13 +210,13 @@ void Quadcopter_Control_Task(void* pdata)
 {
     INT8U err;
     while (1) {
-        for (int i = 0; i < 5; i++) {
-            OSSemPend(PIDSem, 1000, &err);
-        }
         PID_Cycle(&Roll_PID);
         PID_Cycle(&Pitch_PID);
         PID_Cycle(&Yaw_PID);
-        OSTimeDly(3);
+        for (int i = 0; i < 5; i++) {
+            OSSemPost(PIDSem);
+        }
+        OSTimeDly(15);
     }
 }
 
@@ -218,9 +240,10 @@ int main()
     SensorSem = OSSemCreate(0);
     //	ReceiverSem=OSSemCreate(1);
     PIDSem = OSSemCreate(0);
-    // OSTaskCreate(Quadcopter_Imple_Task, (void*)0, (void*)&PID_OUTER_TASK_STK[PID_OUTER_STK_SIZE - 1], PID_OUTER_TASK_PRIO);
-    // OSTaskCreate(Quadcopter_Control_Task, (void*)0, (void*)&PID_INNER_TASK_STK[PID_INNER_STK_SIZE - 1], PID_INNER_TASK_PRIO);
-    //    OSTaskCreate(GY86_TASK, (void*)0, (void*)&GY86_TASK_STK[GY86_STK_SIZE - 1], GY86_TASK_PRIO);
+    I2CSem = OSSemCreate(1);
+    OSTaskCreate(Quadcopter_Imple_Task, (void*)0, (void*)&PID_OUTER_TASK_STK[PID_OUTER_STK_SIZE - 1], PID_OUTER_TASK_PRIO);
+    OSTaskCreate(Quadcopter_Control_Task, (void*)0, (void*)&PID_INNER_TASK_STK[PID_INNER_STK_SIZE - 1], PID_INNER_TASK_PRIO);
+    OSTaskCreate(GY86_TASK, (void*)0, (void*)&GY86_TASK_STK[GY86_STK_SIZE - 1], GY86_TASK_PRIO);
     OSTaskCreate(DATA_TRANSFER_TASK, (void*)0, (void*)&DATA_TRANSFER_TASK_STK[DATA_TRANSFER_STK_SIZE - 1], DATA_TRANSFER_TASK_PRIO);
     OSTaskCreate(DATA_FUSION_TASK, (void*)0, (void*)&DATA_FUSION_TASK_STK[DATA_FUSION_STK_SIZE - 1], DATA_FUSION_TASK_PRIO);
 

@@ -44,6 +44,13 @@ PID_TYPE Roll_PID = {0}, Pitch_PID = {0}, Yaw_PID = {0};
 #define PID_Angle_Pitch_Output_MAX 300
 #define PID_Angle_Yaw_Output_MAX 150
 
+#define KP 4.4;
+#define KI 0.0;
+#define KD 0.0;
+
+#define KP_W 2.6;
+#define KI_W 0.5;
+#define KD_W 0.08;
 void Gesture_PID_Init(void)
 {
     Gain_Type K_pid[3];
@@ -64,9 +71,9 @@ void Gesture_PID_Init(void)
     // 设置积分限幅
     Roll_w_PID.Accu_Err_Max = PID_Angle_Roll_AccuErr_MAX;
     // 设置增益Kp, Ki, Kd
-    K_pid[0] = 0;
-    K_pid[1] = 0;
-    K_pid[2] = 0;
+    K_pid[0] = KP_W;
+    K_pid[1] = KI_W;
+    K_pid[2] = KD_W;
     Roll_w_PID.Set_PID_Arg_Handler(&Roll_w_PID, K_pid);
 
     PID_Init(&Pitch_w_PID);
@@ -85,9 +92,9 @@ void Gesture_PID_Init(void)
     // 设置积分限幅
     Roll_w_PID.Accu_Err_Max = PID_Angle_Pitch_AccuErr_MAX;
     // 设置增益Kp, Ki, Kd
-    K_pid[0] = 0;
-    K_pid[1] = 0;
-    K_pid[2] = 0;
+    K_pid[0] = KP_W;
+    K_pid[1] = KI_W;
+    K_pid[2] = KD_W;
     Pitch_w_PID.Set_PID_Arg_Handler(&Pitch_w_PID, K_pid);
 
     PID_Init(&Yaw_w_PID);
@@ -106,9 +113,9 @@ void Gesture_PID_Init(void)
     // 设置积分限幅
     Roll_w_PID.Accu_Err_Max = PID_Angle_Yaw_AccuErr_MAX;
     // 设置增益Kp, Ki, Kd
-    K_pid[0] = 0;
-    K_pid[1] = 0;
-    K_pid[2] = 0;
+    K_pid[0] = KP_W;
+    K_pid[1] = KI_W;
+    K_pid[2] = KD_W;
     Yaw_w_PID.Set_PID_Arg_Handler(&Yaw_w_PID, K_pid);
 
     PID_Init(&Roll_PID);
@@ -127,9 +134,9 @@ void Gesture_PID_Init(void)
     // 设置积分限幅
     Roll_PID.Accu_Err_Max = PID_Angle_Roll_AccuErr_MAX;
     // 设置增益Kp, Ki, Kd
-    K_pid[0] = 0;
-    K_pid[1] = 0;
-    K_pid[2] = 0;
+    K_pid[0] = KP;
+    K_pid[1] = KI;
+    K_pid[2] = KD;
     Roll_PID.Set_PID_Arg_Handler(&Roll_PID, K_pid);
 
     PID_Init(&Pitch_PID);
@@ -148,9 +155,9 @@ void Gesture_PID_Init(void)
     // 设置积分限幅
     Roll_PID.Accu_Err_Max = PID_Angle_Pitch_AccuErr_MAX;
     // 设置增益Kp, Ki, Kd
-    K_pid[0] = 0;
-    K_pid[1] = 0;
-    K_pid[2] = 0;
+    K_pid[0] = KP;
+    K_pid[1] = KI;
+    K_pid[2] = KD;
     Pitch_PID.Set_PID_Arg_Handler(&Pitch_PID, K_pid);
 
     PID_Init(&Yaw_PID);
@@ -169,9 +176,9 @@ void Gesture_PID_Init(void)
     // 设置积分限幅
     Roll_PID.Accu_Err_Max = PID_Angle_Yaw_AccuErr_MAX;
     // 设置增益Kp, Ki, Kd
-    K_pid[0] = 0;
-    K_pid[1] = 0;
-    K_pid[2] = 0;
+    K_pid[0] = KP;
+    K_pid[1] = KI;
+    K_pid[2] = KD;
     Yaw_PID.Set_PID_Arg_Handler(&Yaw_PID, K_pid);
 }
 

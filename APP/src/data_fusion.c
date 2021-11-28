@@ -5,11 +5,11 @@ float          exInt, eyInt, ezInt;
 volatile float q0 = 1.0f, q1 = 0.0f, q2 = 0.0f, q3 = 0.0f;  // roll,pitch,yaw 都为 0 时对应的四元数值。
 volatile float Pitch, Roll, Yaw;
 
-#define Kp 2.0f      // proportional gain governs rate of convergence to accelerometer/magnetometer
+#define Kp 2.0f       // proportional gain governs rate of convergence to accelerometer/magnetometer
 #define Ki 0.005f     // integral gain governs rate of convergence of gyroscope biases
 #define halfT 0.005f  // half the sample period采样周期的一半
 
-extern int16_t          Mag_gs[3];
+extern int16_t Mag_gs[3];
 
 void IMUupdate(float gx, float gy, float gz, float ax, float ay, float az, float mx, float my, float mz)
 {
@@ -112,11 +112,11 @@ void Conversion_Quaternion_to_Euler(float q0, float q1, float q2, float q3)
 float invSqrt(float x)
 {
     float halfx = 0.5f * x;
-    float y = x;
-    long i = *(long*)&y;
-    i = 0x5f3759df - (i >> 1);
-    y = *(float*)&i;
-    y = y * (1.5f - (halfx * y * y));
+    float y     = x;
+    long  i     = *(long*)&y;
+    i           = 0x5f3759df - (i >> 1);
+    y           = *(float*)&i;
+    y           = y * (1.5f - (halfx * y * y));
     return y;
 }
 
@@ -142,9 +142,9 @@ void Attitude_Update(float gx, float gy, float gz, float ax, float ay, float az,
 
     //加速度计归一化，这就是为什么之前只要陀螺仪数据进行单位转换
     norm = invSqrt(ax * ax + ay * ay + az * az);
-    ax = ax * norm;
-    ay = ay * norm;
-    az = az * norm;
+    ax   = ax * norm;
+    ay   = ay * norm;
+    az   = az * norm;
     //计算上一时刻机体坐标系下加速度坐标
     vx = 2 * (q1q3 - q0q2);
     vy = 2 * (q0q1 + q2q3);
@@ -152,15 +152,15 @@ void Attitude_Update(float gx, float gy, float gz, float ax, float ay, float az,
 
     //磁力计数据归一化
     norm = invSqrt(mx * mx + my * my + mz * mz);
-    mx = mx * norm;
-    my = my * norm;
-    mz = mz * norm;
+    mx   = mx * norm;
+    my   = my * norm;
+    mz   = mz * norm;
     //计算地理坐标系下磁力坐标（地理南北极）
     hx = 2 * mx * (0.5f - q2q2 - q3q3) + 2 * my * (q1q2 - q0q3) + 2 * mz * (q1q3 + q0q2);
     hy = 2 * mx * (q1q2 + q0q3) + 2 * my * (0.5f - q1q1 - q3q3) + 2 * mz * (q2q3 - q0q1);
     hz = 2 * mx * (q1q3 - q0q2) + 2 * my * (q2q3 + q0q1) + 2 * mz * (0.5f - q1q1 - q2q2);
     //（地磁南北极）因为地磁南北极与地理南北极有偏差
-    //bx=0;
+    // bx=0;
     by = sqrtf((hx * hx) + (hy * hy));
     bz = hz;
     //磁力转换回机体坐标系坐标
@@ -175,7 +175,7 @@ void Attitude_Update(float gx, float gy, float gz, float ax, float ay, float az,
 
     //由定时器获取采样周期的一半
 
-    //pi运算
+    // pi运算
     if (ex != 0.0f && ey != 0.0f && ez != 0.0f) {
         // 误差积分
         exInt += ex * Ki * halfT;
@@ -201,37 +201,37 @@ void Attitude_Update(float gx, float gy, float gz, float ax, float ay, float az,
 
     // 归一化四元数
     norm = invSqrt(q0 * q0 + q1 * q1 + q2 * q2 + q3 * q3);
-    q0 = q0 * norm; //w
-    q1 = q1 * norm; //x
-    q2 = q2 * norm; //y
-    q3 = q3 * norm; //z
+    q0   = q0 * norm;  // w
+    q1   = q1 * norm;  // x
+    q2   = q2 * norm;  // y
+    q3   = q3 * norm;  // z
 
     //四元数转欧拉角
-    Roll = asin(2.0f * (q0 * q2 - q1 * q3)) * 57.3f;
+    Roll  = asin(2.0f * (q0 * q2 - q1 * q3)) * 57.3f;
     Pitch = -atan2(2.0f * (q0 * q1 + q2 * q3), q0 * q0 - q1 * q1 - q2 * q2 + q3 * q3) * 57.3f;
-    Yaw = atan2(2.0f * (q0 * q3 + q1 * q2), q0 * q0 + q1 * q1 - q2 * q2 - q3 * q3) * 57.3f;
+    Yaw   = atan2(2.0f * (q0 * q3 + q1 * q2), q0 * q0 + q1 * q1 - q2 * q2 - q3 * q3) * 57.3f;
 }
 
 void Quat_Init(void)
 {
     int16_t initMx, initMy, initMz;
-    float initYaw, initPitch, initRoll;
+    float   initYaw, initPitch, initRoll;
 
     Read_Mag_Gs();
-	
-	initMx=Mag_gs[0];
-	initMx=Mag_gs[1];
-	initMx=Mag_gs[2];
+
+    initMx = Mag_gs[0];
+    initMx = Mag_gs[1];
+    initMx = Mag_gs[2];
 
     //求出初始欧拉角，初始状态水平，所以roll、pitch为0
-    initRoll = 0.0f;
+    initRoll  = 0.0f;
     initPitch = 0.0f;
-    initYaw = atan2(initMx * cos(initRoll) + initMy * sin(initRoll) * sin(initPitch) + initMz * sin(initRoll) * cos(initPitch),
-        initMy * cos(initPitch) - initMz * sin(initPitch));
+    initYaw   = atan2(initMx * cos(initRoll) + initMy * sin(initRoll) * sin(initPitch) + initMz * sin(initRoll) * cos(initPitch),
+                      initMy * cos(initPitch) - initMz * sin(initPitch));
 
     // 四元数计算
-    q0 = cos(0.5f * initRoll) * cos(0.5f * initPitch) * cos(0.5f * initYaw) + sin(0.5f * initRoll) * sin(0.5f * initPitch) * sin(0.5f * initYaw); //w
-    q1 = cos(0.5f * initRoll) * sin(0.5f * initPitch) * cos(0.5f * initYaw) - sin(0.5f * initRoll) * cos(0.5f * initPitch) * sin(0.5f * initYaw); //x Pitch
-    q2 = sin(0.5f * initRoll) * cos(0.5f * initPitch) * cos(0.5f * initYaw) + cos(0.5f * initRoll) * sin(0.5f * initPitch) * sin(0.5f * initYaw); //y Roll
-    q3 = cos(0.5f * initRoll) * cos(0.5f * initPitch) * sin(0.5f * initYaw) - sin(0.5f * initRoll) * sin(0.5f * initPitch) * cos(0.5f * initYaw); //z Yaw
+    q0 = cos(0.5f * initRoll) * cos(0.5f * initPitch) * cos(0.5f * initYaw) + sin(0.5f * initRoll) * sin(0.5f * initPitch) * sin(0.5f * initYaw);  // w
+    q1 = cos(0.5f * initRoll) * sin(0.5f * initPitch) * cos(0.5f * initYaw) - sin(0.5f * initRoll) * cos(0.5f * initPitch) * sin(0.5f * initYaw);  // x Pitch
+    q2 = sin(0.5f * initRoll) * cos(0.5f * initPitch) * cos(0.5f * initYaw) + cos(0.5f * initRoll) * sin(0.5f * initPitch) * sin(0.5f * initYaw);  // y Roll
+    q3 = cos(0.5f * initRoll) * cos(0.5f * initPitch) * sin(0.5f * initYaw) - sin(0.5f * initRoll) * sin(0.5f * initPitch) * cos(0.5f * initYaw);  // z Yaw
 }
