@@ -1,12 +1,15 @@
 #include "data_fusion.h"
+#include "mpu6050.h"
 
 float          exInt, eyInt, ezInt;
 volatile float q0 = 1.0f, q1 = 0.0f, q2 = 0.0f, q3 = 0.0f;  // roll,pitch,yaw 都为 0 时对应的四元数值。
 volatile float Pitch, Roll, Yaw;
 
-#define Kp 10.0f      // proportional gain governs rate of convergence to accelerometer/magnetometer
-#define Ki 0.008f     // integral gain governs rate of convergence of gyroscope biases
+#define Kp 2.0f      // proportional gain governs rate of convergence to accelerometer/magnetometer
+#define Ki 0.005f     // integral gain governs rate of convergence of gyroscope biases
 #define halfT 0.005f  // half the sample period采样周期的一半
+
+extern int16_t          Mag_gs[3];
 
 void IMUupdate(float gx, float gy, float gz, float ax, float ay, float az, float mx, float my, float mz)
 {
@@ -209,36 +212,26 @@ void Attitude_Update(float gx, float gy, float gz, float ax, float ay, float az,
     Yaw = atan2(2.0f * (q0 * q3 + q1 * q2), q0 * q0 + q1 * q1 - q2 * q2 - q3 * q3) * 57.3f;
 }
 
-//void Quat_Init(void)
-//{
-//    int16_t initMx, initMy, initMz;
-//    float initYaw, initPitch, initRoll;
+void Quat_Init(void)
+{
+    int16_t initMx, initMy, initMz;
+    float initYaw, initPitch, initRoll;
 
-//    uint8_t dataBuf[14];
-//	
-//    if (!HMC_Read_Len(HMC_DATA_XMSB, 6, dataBuf)) {
-//        initMx = (dataBuf[0] << 8) | dataBuf[1];
-//        initMy = (dataBuf[4] << 8) | dataBuf[5];
-//        initMz = (dataBuf[2] << 8) | dataBuf[3];
+    Read_Mag_Gs();
+	
+	initMx=Mag_gs[0];
+	initMx=Mag_gs[1];
+	initMx=Mag_gs[2];
 
-//        // Complement processing and unit conversion
-//        if (initMx > 0x7fff)
-//            initMx -= 0xffff;
-//        if (initMy > 0x7fff)
-//            initMy -= 0xffff;
-//        if (initMz > 0x7fff)
-//            initMz -= 0xffff;
-//    }
+    //求出初始欧拉角，初始状态水平，所以roll、pitch为0
+    initRoll = 0.0f;
+    initPitch = 0.0f;
+    initYaw = atan2(initMx * cos(initRoll) + initMy * sin(initRoll) * sin(initPitch) + initMz * sin(initRoll) * cos(initPitch),
+        initMy * cos(initPitch) - initMz * sin(initPitch));
 
-//    //求出初始欧拉角，初始状态水平，所以roll、pitch为0
-//    initRoll = 0.0f;
-//    initPitch = 0.0f;
-//    initYaw = atan2(initMx * cos(initRoll) + initMy * sin(initRoll) * sin(initPitch) + initMz * sin(initRoll) * cos(initPitch),
-//        initMy * cos(initPitch) - initMz * sin(initPitch));
-
-//    // 四元数计算
-//    q0 = cos(0.5f * initRoll) * cos(0.5f * initPitch) * cos(0.5f * initYaw) + sin(0.5f * initRoll) * sin(0.5f * initPitch) * sin(0.5f * initYaw); //w
-//    q1 = cos(0.5f * initRoll) * sin(0.5f * initPitch) * cos(0.5f * initYaw) - sin(0.5f * initRoll) * cos(0.5f * initPitch) * sin(0.5f * initYaw); //x Pitch
-//    q2 = sin(0.5f * initRoll) * cos(0.5f * initPitch) * cos(0.5f * initYaw) + cos(0.5f * initRoll) * sin(0.5f * initPitch) * sin(0.5f * initYaw); //y Roll
-//    q3 = cos(0.5f * initRoll) * cos(0.5f * initPitch) * sin(0.5f * initYaw) - sin(0.5f * initRoll) * sin(0.5f * initPitch) * cos(0.5f * initYaw); //z Yaw
-//}
+    // 四元数计算
+    q0 = cos(0.5f * initRoll) * cos(0.5f * initPitch) * cos(0.5f * initYaw) + sin(0.5f * initRoll) * sin(0.5f * initPitch) * sin(0.5f * initYaw); //w
+    q1 = cos(0.5f * initRoll) * sin(0.5f * initPitch) * cos(0.5f * initYaw) - sin(0.5f * initRoll) * cos(0.5f * initPitch) * sin(0.5f * initYaw); //x Pitch
+    q2 = sin(0.5f * initRoll) * cos(0.5f * initPitch) * cos(0.5f * initYaw) + cos(0.5f * initRoll) * sin(0.5f * initPitch) * sin(0.5f * initYaw); //y Roll
+    q3 = cos(0.5f * initRoll) * cos(0.5f * initPitch) * sin(0.5f * initYaw) - sin(0.5f * initRoll) * sin(0.5f * initPitch) * cos(0.5f * initYaw); //z Yaw
+}

@@ -21,11 +21,11 @@ extern u8 hm_flag;
 
 // GY86 所需要的数组
 extern float          Acel_mps[3];
-extern short          Acel_raw[3];
+extern int16_t         Acel_raw[3];
 extern float          Gyro_dps[3];
-extern short          Gyro_raw[3];
-extern short          Mag_raw[3];
-extern float          Mag_gs[3];
+extern int16_t          Gyro_raw[3];
+extern int16_t          Mag_raw[3];
+extern int16_t          Mag_gs[3];
 extern float          Temp;
 extern volatile float Pitch, Roll, Yaw;
 extern uint16_t       Duty[6];
@@ -59,7 +59,7 @@ OS_STK GY86_TASK_STK[GY86_STK_SIZE];
 OS_STK DATA_TRANSFER_TASK_STK[DATA_TRANSFER_STK_SIZE];
 OS_STK DATA_FUSION_TASK_STK[DATA_FUSION_STK_SIZE];
 
-#define DMP 0
+#define DMP 1
 #define MOTOR 0
 #define RECEIVER 0
 #define PID 0
@@ -106,6 +106,7 @@ void INIT_TASK(void* pdata)
 #if PID
     void Gesture_PID_Init();
 #endif
+	Quat_Init();
 }
 
 void DATA_FUSION_TASK(void* pdata)
@@ -116,12 +117,13 @@ void DATA_FUSION_TASK(void* pdata)
         Read_Gyro_DPS();
         Read_Mag_Gs();
 #if DMP
-// mpu_dmp_get_data(&pitch,&roll,&yaw);
-#endif
-//        IMUupdate(Gyro_dps[0], Gyro_dps[1], Gyro_dps[2], Acel_mps[0], Acel_mps[1], Acel_mps[2], Mag_gs[2], Mag_gs[0], Mag_gs[1]);
-		Attitude_Update(Gyro_dps[0], Gyro_dps[1], Gyro_dps[2], Acel_mps[0], Acel_mps[1], Acel_mps[2], Mag_gs[0], Mag_gs[2], Mag_gs[1]);
+ mpu_dmp_get_data(&Pitch,&Roll,&Yaw);
+#else
+        //        IMUupdate(Gyro_dps[0], Gyro_dps[1], Gyro_dps[2], Acel_mps[0], Acel_mps[1], Acel_mps[2], Mag_gs[2], Mag_gs[0], Mag_gs[1]);
+        Attitude_Update(Gyro_dps[0], Gyro_dps[1], Gyro_dps[2], Acel_mps[0], Acel_mps[1], Acel_mps[2], Mag_gs[0], Mag_gs[1], Mag_gs[2]);
         // origin        IMUupdate(Gyro_dps[0], Gyro_dps[1], Gyro_dps[2], Acel_mps[0], Acel_mps[1], Acel_mps[2], Mag_gs[0], Mag_gs[2], Mag_gs[1]);
         //  MadgwickAHRSupdate(Gyro_dps[1],Gyro_dps[0],-Gyro_dps[2],-Acel_mps[1],-Acel_mps[0],Acel_mps[2],-Mag_gs[2],-Mag_gs[0],Mag_gs[1]);
+		#endif
         OSTimeDly(10);
     }
 }
@@ -132,8 +134,8 @@ void DATA_TRANSFER_TASK(void* pdata)
     while (1) {
         ANO_DT_Send_Status(Roll, Pitch, Yaw, 0);
 
-        ANO_DT_Send_Senser(Acel_mps[0]*100, Acel_mps[1]*100, Acel_mps[2]*100, Gyro_dps[0]*100, Gyro_dps[1]*100, Gyro_dps[2]*100, 0);
-        ANO_DT_Send_Senser2(Mag_gs[0], Mag_gs[2], Mag_gs[1], 0, 0, 0, 0);
+        ANO_DT_Send_Senser(Acel_mps[0] * 100, Acel_mps[1] * 100, Acel_mps[2] * 100, Gyro_dps[0] * 100, Gyro_dps[1] * 100, Gyro_dps[2] * 100, 0);
+        ANO_DT_Send_Senser2(Mag_raw[0], Mag_raw[1], Mag_raw[2], 0, 0, 0, 0);
 /* 目标姿态，通过遥控器的数据直接算出 */
 #if PID
         ANO_DT_Send_Target_Status(Roll_T, Pitch_T, Yaw_T);
@@ -144,7 +146,7 @@ void DATA_TRANSFER_TASK(void* pdata)
         ANO_DT_Send_Control_Status(Roll_w_PID.Output, Pitch_w_PID.Output, Base_CCR, Yaw_w_PID.Output);
 #endif
 
-        OSTimeDly(20);
+        OSTimeDly(30);
     }
 }
 

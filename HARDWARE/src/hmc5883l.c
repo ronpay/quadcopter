@@ -43,17 +43,17 @@ void MPU_HMC_Init(void)
 void HMC_Init(void)
 {
     HMC5883L_WriteReg(HMC_CONFIGA,
-                      0x50);               // 01010000/采样平均数4，输出速率15 Hz，正常测量配置
-    HMC5883L_WriteReg(HMC_CONFIGB, 0xE0);  // 11100000/将增益调至最小
+                      0x18);               // 01010000/采样平均数4，输出速率15 Hz，正常测量配置
+    HMC5883L_WriteReg(HMC_CONFIGB, 0x20);  // 11100000/将增益调至最小
     HMC5883L_WriteReg(HMC_MODE, 0x00);     // 00000000/设置为连续模式
 }
 
-void HMC5884LReadMe(short* MeData)
+void HMC5884LReadMe(int16_t* MeData)
 {
     u8 buf[6];
     // HMC5883L_ReadData(HMC_DATA_XMSB,buf,6);
     HMC5883L_ReadData(HMC_DATA_XMSB, buf, 6);
     MeData[0] = (buf[0] << 8) | buf[1];
-    MeData[1] = (buf[2] << 8) | buf[3];
-    MeData[2] = (buf[4] << 8) | buf[5];
+    MeData[2] = (buf[2] << 8) | buf[3];
+    MeData[1] = (buf[4] << 8) | buf[5];
 }

@@ -3,14 +3,14 @@
 #include "i2c.h"
 
 float Acel_mps[3];
-short Acel_raw[3];
+int16_t Acel_raw[3];
 short Acel_offset[3];
 float Gyro_dps[3];
-short Gyro_raw[3];
+int16_t Gyro_raw[3];
 short Gyro_offset[3];
 float Temp;
-short Mag_raw[3];
-float Mag_gs[3];
+int16_t Mag_raw[3];
+int16_t Mag_gs[3];
 short Mag_offset[3];
 // float pitch, roll, yaw;
 
@@ -180,42 +180,42 @@ int MPU_DMP_Write_Len(uint8_t addr, uint8_t reg, uint8_t len, uint8_t* buf)
 //}
 
 //磁力计校准，8字校准。
-//void Mag_Test(void)
-//{
-//    short xMin, yMin, zMin;
-//    short xMax, yMax, zMax;
+void Mag_Test(void)
+{
+    short xMin, yMin, zMin;
+    short xMax, yMax, zMax;
 
-//    //初始化
-//    HMC5884LReadMe(Mag_raw);
-//    xMin = xMax = Mag_raw[0];
-//    yMin = yMax = Mag_raw[1];
-//    zMin = zMax = Mag_raw[2];
+    //初始化
+    HMC5884LReadMe(Mag_raw);
+    xMin = xMax = Mag_raw[0];
+    yMin = yMax = Mag_raw[1];
+    zMin = zMax = Mag_raw[2];
 
-//    for (int i = 0; i < 100; i++) {
-//        HMC5884LReadMe(Mag_raw);
-//        if (Mag_raw[0] > xMax)
-//            xMax = Mag_raw[0];
-//        else if (Mag_raw[0] < xMin)
-//            xMin = Mag_raw[0];
+    for (int i = 0; i < 100; i++) {
+        HMC5884LReadMe(Mag_raw);
+        if (Mag_raw[0] > xMax)
+            xMax = Mag_raw[0];
+        else if (Mag_raw[0] < xMin)
+            xMin = Mag_raw[0];
 
-//        if (Mag_raw[1] > yMax)
-//            yMax = Mag_raw[1];
-//        else if (Mag_raw[1] < yMin)
-//            yMin = Mag_raw[1];
+        if (Mag_raw[1] > yMax)
+            yMax = Mag_raw[1];
+        else if (Mag_raw[1] < yMin)
+            yMin = Mag_raw[1];
 
-//        if (Mag_raw[2] > zMax)
-//            zMax = Mag_raw[2];
-//        else if (Mag_raw[2] < zMin)
-//            zMin = Mag_raw[2];
-//    }
+        if (Mag_raw[2] > zMax)
+            zMax = Mag_raw[2];
+        else if (Mag_raw[2] < zMin)
+            zMin = Mag_raw[2];
+    }
 
-//    MagScale[1] = (float)(xMax - xMin) / (float)(yMax - yMin);
-//    MagScale[2] = (float)(xMax - xMin) / (float)(zMax - zMin);
+    MagScale[1] = (float)(xMax - xMin) / (float)(yMax - yMin);
+    MagScale[2] = (float)(xMax - xMin) / (float)(zMax - zMin);
 
-//    offsetMag[0] = MagScale[0] * (xMax - 1 / 2 * (xMax - xMin));
-//    offsetMag[1] = MagScale[1] * (yMax - 1 / 2 * (yMax - yMin));
-//    offsetMag[2] = MagScale[2] * (zMax - 1 / 2 * (zMax - zMin));
-//}
+    offsetMag[0] = MagScale[0] * (xMax - 1 / 2 * (xMax - xMin));
+    offsetMag[1] = MagScale[1] * (yMax - 1 / 2 * (yMax - yMin));
+    offsetMag[2] = MagScale[2] * (zMax - 1 / 2 * (zMax - zMin));
+}
 
 void GY86_Offset(void)
 {
@@ -242,7 +242,7 @@ void GY86_SelfTest(void)
 {
     GY86_Offset();
     // Gyro_Test();
-    // Mag_Test();
+//    Mag_Test();
 }
 
 void Read_Accel_MPS(void)
@@ -267,9 +267,9 @@ void Read_Mag_Gs(void)
     HMC5884LReadMe(Mag_raw);
     for (int i = 0; i < 3; i++) {
 		if(Mag_raw[i]>0x7fff)
-			Mag_raw[i]-=0x7ffff;
+			Mag_raw[i]-=0xffff;
         Mag_gs[i] = Mag_raw[i];
 		
-        //        Mag_gs[i] = ((float)Mag[i] - offsetMag[i]) * MagScale[i];
+//        Mag_gs[i] = (Mag_gs[i] - offsetMag[i]) * MagScale[i];
     }
 }

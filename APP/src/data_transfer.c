@@ -23,13 +23,13 @@ void ANO_DT_Send_Status(float angle_rol, float angle_pit, float angle_yaw, uint8
     data_to_send[_cnt++] = 0x03;
     data_to_send[_cnt++] = 0x07;
 
-    _temp                = (angle_rol * 100);
+    _temp                = (int16_t)(angle_rol * 100);
     data_to_send[_cnt++] = BYTE0(_temp);
     data_to_send[_cnt++] = BYTE1(_temp);
-    _temp                = (angle_pit * 100);
+    _temp                = (int16_t)(angle_pit * 100);
     data_to_send[_cnt++] = BYTE0(_temp);
     data_to_send[_cnt++] = BYTE1(_temp);
-    _temp                = (angle_yaw * 100);
+    _temp                = (int16_t)(angle_yaw * 100);
     data_to_send[_cnt++] = BYTE0(_temp);
     data_to_send[_cnt++] = BYTE1(_temp);
 
@@ -120,7 +120,7 @@ void ANO_DT_Send_Senser(float a_x, float a_y, float a_z, float g_x, float g_y, f
     ANO_DT_Send_Data(data_to_send, _cnt);
 }
 
-void ANO_DT_Send_Senser2(float m_x, float m_y, float m_z, int32_t alt, int16_t tmp, uint8_t bar_sta, uint8_t mag_sta)
+void ANO_DT_Send_Senser2(int16_t m_x, int16_t m_y, int16_t m_z, int32_t alt, int16_t tmp, uint8_t bar_sta, uint8_t mag_sta)
 {
     u8   _cnt = 0;
     vs16 _temp;
