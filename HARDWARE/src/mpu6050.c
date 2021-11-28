@@ -1,17 +1,18 @@
 #include "mpu6050.h"
 
 #include "i2c.h"
+#include "si2c.h"
 
-float Acel_mps[3];
+float   Acel_mps[3];
 int16_t Acel_raw[3];
-short Acel_offset[3];
-float Gyro_dps[3];
+short   Acel_offset[3];
+float   Gyro_dps[3];
 int16_t Gyro_raw[3];
-short Gyro_offset[3];
-float Temp;
+short   Gyro_offset[3];
+float   Temp;
 int16_t Mag_raw[3];
 int16_t Mag_gs[3];
-short Mag_offset[3];
+short   Mag_offset[3];
 // float pitch, roll, yaw;
 
 short offsetMag[3];
@@ -105,7 +106,10 @@ void MPU6050_Init(void)
 void MPU6050ReadAcc(short* accData)
 {
     u8 buf[6];
-    MPU6050_ReadData(MPU6050_ACC_OUT, buf, 6);
+
+    // MPU6050_ReadData(MPU6050_ACC_OUT, buf, 6);
+    i2cread(MPU6050_ADDRESS, MPU6050_ACC_OUT, 6, buf);
+
     accData[0] = (buf[0] << 8) | buf[1];
     accData[1] = (buf[2] << 8) | buf[3];
     accData[2] = (buf[4] << 8) | buf[5];
@@ -120,6 +124,7 @@ void MPU6050ReadGyro(short* gyroData)
 {
     u8 buf[6];
     MPU6050_ReadData(MPU6050_GYRO_OUT, buf, 6);
+    i2cread(MPU6050_ADDRESS, MPU6050_GYRO_OUT, 6, buf);
     gyroData[0] = (buf[0] << 8) | buf[1];
     gyroData[1] = (buf[2] << 8) | buf[3];
     gyroData[2] = (buf[4] << 8) | buf[5];
@@ -163,21 +168,21 @@ int MPU_DMP_Write_Len(uint8_t addr, uint8_t reg, uint8_t len, uint8_t* buf)
     return 0;
 }
 
-//void Gyro_Test(void)
+// void Gyro_Test(void)
 //{
-//    short sum_x = 0, sum_y = 0, sum_z = 0;
-//    Gyro_raw[0] = 0, Gyro_raw[1] = 0, Gyro_raw[2] = 0;
-//    int times = 50;
-//    for (int i = 0; i < times; i++) {
-//        MPU6050ReadGyro(Gyro_raw);
-//        sum_x += Gyro_raw[0];
-//        sum_y += Gyro_raw[1];
-//        sum_z += Gyro_raw[2];
-//    }
-//    Gyro_Fix[0] = sum_x / times;
-//    Gyro_Fix[1] = sum_y / times;
-//    Gyro_Fix[2] = sum_z / times;
-//}
+//     short sum_x = 0, sum_y = 0, sum_z = 0;
+//     Gyro_raw[0] = 0, Gyro_raw[1] = 0, Gyro_raw[2] = 0;
+//     int times = 50;
+//     for (int i = 0; i < times; i++) {
+//         MPU6050ReadGyro(Gyro_raw);
+//         sum_x += Gyro_raw[0];
+//         sum_y += Gyro_raw[1];
+//         sum_z += Gyro_raw[2];
+//     }
+//     Gyro_Fix[0] = sum_x / times;
+//     Gyro_Fix[1] = sum_y / times;
+//     Gyro_Fix[2] = sum_z / times;
+// }
 
 //磁力计校准，8字校准。
 void Mag_Test(void)
@@ -242,7 +247,7 @@ void GY86_SelfTest(void)
 {
     GY86_Offset();
     // Gyro_Test();
-//    Mag_Test();
+    //    Mag_Test();
 }
 
 void Read_Accel_MPS(void)
@@ -266,10 +271,10 @@ void Read_Mag_Gs(void)
 {
     HMC5884LReadMe(Mag_raw);
     for (int i = 0; i < 3; i++) {
-		if(Mag_raw[i]>0x7fff)
-			Mag_raw[i]-=0xffff;
+        if (Mag_raw[i] > 0x7fff)
+            Mag_raw[i] -= 0xffff;
         Mag_gs[i] = Mag_raw[i];
-		
-//        Mag_gs[i] = (Mag_gs[i] - offsetMag[i]) * MagScale[i];
+
+        //        Mag_gs[i] = (Mag_gs[i] - offsetMag[i]) * MagScale[i];
     }
 }
