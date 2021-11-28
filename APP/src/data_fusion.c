@@ -35,7 +35,7 @@ void IMUupdate(float gx, float gy, float gz, float ax, float ay, float az, float
         return;
 
     if (mx * my * mz == 0)
-        return;
+//        return;
 
     norm = sqrt(ax * ax + ay * ay + az * az);  // acc数据归一化
     ax   = ax / norm;

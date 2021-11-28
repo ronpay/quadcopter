@@ -107,7 +107,7 @@ void MPU6050ReadAcc(short* accData)
 {
     u8 buf[6];
 
-    // MPU6050_ReadData(MPU6050_ACC_OUT, buf, 6);
+     //MPU6050_ReadData(MPU6050_ACC_OUT, buf, 6);
     i2cread(MPU6050_ADDRESS, MPU6050_ACC_OUT, 6, buf);
 
     accData[0] = (buf[0] << 8) | buf[1];
@@ -123,7 +123,7 @@ void MPU6050ReadAcc(short* accData)
 void MPU6050ReadGyro(short* gyroData)
 {
     u8 buf[6];
-    MPU6050_ReadData(MPU6050_GYRO_OUT, buf, 6);
+    //MPU6050_ReadData(MPU6050_GYRO_OUT, buf, 6);
     i2cread(MPU6050_ADDRESS, MPU6050_GYRO_OUT, 6, buf);
     gyroData[0] = (buf[0] << 8) | buf[1];
     gyroData[1] = (buf[2] << 8) | buf[3];

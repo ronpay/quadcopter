@@ -28,7 +28,7 @@
 #define I2C_ACK 0x01
 
 // I2C nop （空操作，用以延时）
-#define I2C_NOP Delay_ms(1)
+#define I2C_NOP Delay_us(1)
 
 // 函数定义
 void IIC_Init(void);
@@ -42,5 +42,6 @@ uint32_t I2C_Read_3Bytes(uint8_t DeviceAddr, uint8_t address);
 
 u8 i2cwrite(u8 dev_addr, u8 reg_addr, u8 i2c_len, u8* i2c_data_buf);
 u8 i2cread(u8 dev_addr, u8 reg_addr, u8 i2c_len, u8* i2c_data_buf);
+void Delay_us(int8_t);
 
 #endif

@@ -14,6 +14,7 @@
 #include "quad_pid.h"
 #include "receiver.h"
 #include "sysTick.h"
+#include "si2c.h"
 
 OS_EVENT* PIDSem;
 OS_EVENT* SensorSem;
@@ -101,14 +102,17 @@ void INIT_TASK(void* pdata)
     Delay_s(1);
     // without dmp
     GY86_Init();
-    GY86_SelfTest();
-
+//		OLED_CLS();
+		Delay_s(1);
+		IIC_Init();
+		GY86_SelfTest();
 #endif
     OLED_CLS();
 #if PID
     Gesture_PID_Init();
 #endif
-    Quat_Init();
+//    Quat_Init();
+
 }
 
 void GY86_TASK(void* pdata)
@@ -133,19 +137,19 @@ void DATA_FUSION_TASK(void* pdata)
         //    OS_CPU_SR cpu_sr = 0u;
         //#endif
         //		OS_ENTER_CRITICAL();
-
+				OSSemPend(SensorSem, 2, &err);
 #if DMP
 // mpu_dmp_get_data(&Pitch,&Roll,&Yaw);
 #else
-        OSSemPend(SensorSem, 2, &err);
-        // IMUupdate(Gyro_dps[0], Gyro_dps[1], Gyro_dps[2], Acel_mps[0], Acel_mps[1], Acel_mps[2], Mag_gs[0], Mag_gs[1], Mag_gs[2]);
-//        Attitude_Update(Gyro_dps[0], Gyro_dps[1], Gyro_dps[2], Acel_mps[0], Acel_mps[1], Acel_mps[2], Mag_gs[0], Mag_gs[1], Mag_gs[2]);
+        
+//        IMUupdate(Gyro_dps[0], Gyro_dps[1], Gyro_dps[2], Acel_mps[0], Acel_mps[1], Acel_mps[2], Mag_gs[0], Mag_gs[1], Mag_gs[2]);
+       Attitude_Update(Gyro_dps[0], Gyro_dps[1], Gyro_dps[2], Acel_mps[0], Acel_mps[1], Acel_mps[2], Mag_gs[0], Mag_gs[1], Mag_gs[2]);
 // origin        IMUupdate(Gyro_dps[0], Gyro_dps[1], Gyro_dps[2], Acel_mps[0], Acel_mps[1], Acel_mps[2], Mag_gs[0], Mag_gs[2], Mag_gs[1]);
 //  MadgwickAHRSupdate(Gyro_dps[1],Gyro_dps[0],-Gyro_dps[2],-Acel_mps[1],-Acel_mps[0],Acel_mps[2],-Mag_gs[2],-Mag_gs[0],Mag_gs[1]);
 #endif
         //			OSSemPost(I2CSem);
         //			OS_EXIT_CRITICAL();
-        OSTimeDly(40);
+        OSTimeDly(10);
     }
 }
 
@@ -167,7 +171,7 @@ void DATA_TRANSFER_TASK(void* pdata)
         ANO_DT_Send_Control_Status(Roll_w_PID.Output, Pitch_w_PID.Output, Base_CCR, Yaw_w_PID.Output);
 #endif
 
-        OSTimeDly(30);
+        OSTimeDly(20);
     }
 }
 
@@ -201,7 +205,7 @@ void Quadcopter_Imple_Task(void* pdata)
             //            Motor_Set(Servo_PWM[i], i + 1);
         }
 
-        OSTimeDly(3);
+        OSTimeDly(10);
     }
 }
 
@@ -216,7 +220,7 @@ void Quadcopter_Control_Task(void* pdata)
         for (int i = 0; i < 5; i++) {
             OSSemPost(PIDSem);
         }
-        OSTimeDly(15);
+        OSTimeDly(50);
     }
 }
 
