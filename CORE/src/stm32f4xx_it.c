@@ -22,7 +22,7 @@ void USART6_IRQHandler(void)
 
 void TIM3_IRQHandler(void)
 {
-    INT8U err;
+    //INT8U err;
     //#if OS_CRITICAL_METHOD == 3u /* Allocate storage for CPU status register */
     //    OS_CPU_SR cpu_sr = 0u;
     //#endif

@@ -1,10 +1,11 @@
 #include "receiver.h"
 
-volatile uint8_t         captureFlag[6] = {0};  //捕获状态
-volatile uint32_t        CapVal[6]      = {0};  //第一次下降沿计数值
-volatile uint16_t        Duty[6];               // 1000-2000
-const int                Cycle = 20000;
-extern volatile float    Pitch_T, Roll_T, Yaw_T;
+volatile uint8_t      captureFlag[6] = {0};  //捕获状态
+volatile uint32_t     CapVal[6]      = {0};  //第一次下降沿计数值
+volatile uint16_t     Duty[6];               // 1000-2000
+const int             Cycle = 20000;
+extern volatile float Pitch_T, Roll_T, Yaw_T;
+// const int                Pitch_Range = 30, Roll_Range = 30, Yaw_Range = 15;
 const int                Pitch_Range = 30, Roll_Range = 30, Yaw_Range = 15;
 extern volatile uint16_t Base_CCR;
 
@@ -16,8 +17,7 @@ void Receiver_Config(void)
 void Receiver_IRQ_Handler(void)
 {
     int receiverNum;
-    // 油门
-		//new roll 横滚角
+    /* yaw 偏航角 */
     if (TIM_GetITStatus(TIM3, TIM_IT_CC1) != RESET) {
         receiverNum = 0;
 
@@ -32,12 +32,7 @@ void Receiver_IRQ_Handler(void)
             case 1:
                 CapVal[receiverNum] = TIM_GetCapture1(TIM3);
                 Duty[receiverNum]   = CapVal[receiverNum] % Cycle;
-<<<<<<< HEAD
-//								Roll_T              = (Duty[receiverNum] - 1500) / 500.0f * Roll_Range;
-						Yaw_T               = (Duty[receiverNum] - 1500) / 500.0f * Yaw_Range;
-=======
-								Roll_T              = (Duty[receiverNum] - 1500) / 500.0f * Roll_Range;
->>>>>>> be45da876f9f3ef471b85f744006b49b2b0a0f00
+                Yaw_T               = (Duty[receiverNum] - 1500) / 500.0f * Yaw_Range;
                 TIM_OC1PolarityConfig(TIM3, TIM_ICPolarity_Rising);
                 captureFlag[receiverNum] = 0;
 
@@ -45,8 +40,7 @@ void Receiver_IRQ_Handler(void)
         }
         TIM_ClearITPendingBit(TIM3, TIM_IT_CC1 | TIM_IT_Update);
     }
-    /* Yaw 偏航角 */
-		// new pitch 俯仰角
+    /* pitch 俯仰角 */
     else if (TIM_GetITStatus(TIM3, TIM_IT_CC2) != RESET) {
         receiverNum = 1;
 
@@ -61,7 +55,7 @@ void Receiver_IRQ_Handler(void)
             case 1:
                 CapVal[receiverNum] = TIM_GetCapture2(TIM3);
                 Duty[receiverNum]   = CapVal[receiverNum] % Cycle;
-								Pitch_T             = (Duty[receiverNum] - 1500) / 500.0f * Pitch_Range;
+                Pitch_T             = (Duty[receiverNum] - 1500) / 500.0f * Pitch_Range;
                 TIM_OC2PolarityConfig(TIM3, TIM_ICPolarity_Rising);
                 captureFlag[receiverNum] = 0;
 
@@ -69,8 +63,7 @@ void Receiver_IRQ_Handler(void)
         }
         TIM_ClearITPendingBit(TIM3, TIM_IT_CC2 | TIM_IT_Update);
     }
-    /* Pitch 俯仰角 */
-		// new 油门
+    /* 油门 */
     else if (TIM_GetITStatus(TIM3, TIM_IT_CC3) != RESET) {
         receiverNum = 2;
 
@@ -85,11 +78,7 @@ void Receiver_IRQ_Handler(void)
             case 1:
                 CapVal[receiverNum] = TIM_GetCapture3(TIM3);
                 Duty[receiverNum]   = CapVal[receiverNum] % Cycle;
-<<<<<<< HEAD
-								Base_CCR            = 400+(Duty[receiverNum]-1000)*3/4;
-=======
-								Base_CCR            = Duty[receiverNum];
->>>>>>> be45da876f9f3ef471b85f744006b49b2b0a0f00
+                Base_CCR            = 400 + (Duty[receiverNum] - 1000) * 3 / 4;
                 TIM_OC3PolarityConfig(TIM3, TIM_ICPolarity_Rising);
                 captureFlag[receiverNum] = 0;
 
@@ -98,7 +87,6 @@ void Receiver_IRQ_Handler(void)
         TIM_ClearITPendingBit(TIM3, TIM_IT_CC3 | TIM_IT_Update);
     }
     /* Roll 翻滚角 */
-		//new  yaw 偏航角
     else if (TIM_GetITStatus(TIM3, TIM_IT_CC4) != RESET) {
         receiverNum = 3;
 
@@ -113,12 +101,7 @@ void Receiver_IRQ_Handler(void)
             case 1:
                 CapVal[receiverNum] = TIM_GetCapture4(TIM3);
                 Duty[receiverNum]   = CapVal[receiverNum] % Cycle;
-<<<<<<< HEAD
-//								Yaw_T               = (Duty[receiverNum] - 1500) / 500.0f * Yaw_Range;
-						Roll_T              = (Duty[receiverNum] - 1500) / 500.0f * Roll_Range;
-=======
-								Yaw_T               = (Duty[receiverNum] - 1500) / 500.0f * Yaw_Range;
->>>>>>> be45da876f9f3ef471b85f744006b49b2b0a0f00
+                Roll_T              = (Duty[receiverNum] - 1500) / 500.0f * Roll_Range;
                 TIM_OC4PolarityConfig(TIM3, TIM_ICPolarity_Rising);
                 captureFlag[receiverNum] = 0;
         }

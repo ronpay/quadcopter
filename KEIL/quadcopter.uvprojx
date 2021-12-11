@@ -10,7 +10,7 @@
       <TargetName>Target 1</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
-      <pCCUsed>5060960::V5.06 update 7 (build 960)::.\ARMCC</pCCUsed>
+      <pCCUsed>5060960::V5.06 update 7 (build 960)::ARMCC</pCCUsed>
       <uAC6>0</uAC6>
       <TargetOption>
         <TargetCommonOption>
@@ -397,11 +397,6 @@
               <FileName>data_fusion.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\APP\src\data_fusion.c</FilePath>
-            </File>
-            <File>
-              <FileName>ahrs.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\APP\src\ahrs.c</FilePath>
             </File>
             <File>
               <FileName>pid.c</FileName>

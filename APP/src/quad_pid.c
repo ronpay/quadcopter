@@ -11,7 +11,7 @@
 
 extern volatile float Pitch, Roll, Yaw;
 volatile float        Pitch_T, Roll_T, Yaw_T;
-extern float   Gyro_dps[3];
+extern float          Gyro_int[3];
 
 PID_TYPE Roll_w_PID = {0}, Pitch_w_PID = {0}, Yaw_w_PID = {0};
 PID_TYPE Roll_PID = {0}, Pitch_PID = {0}, Yaw_PID = {0};
@@ -49,16 +49,10 @@ PID_TYPE Roll_PID = {0}, Pitch_PID = {0}, Yaw_PID = {0};
 #define KI 0.0;
 #define KD 0.0;
 
-<<<<<<< HEAD
 #define KP_W 3.0;
 //#define KP_W 0.53;
 #define KI_W 0.00;
 #define KD_W 0.00;
-=======
-#define KP_W 2.6;
-#define KI_W 0.0;
-#define KD_W 0.08;
->>>>>>> be45da876f9f3ef471b85f744006b49b2b0a0f00
 void Gesture_PID_Init(void)
 {
     Gain_Type K_pid[3];
@@ -193,20 +187,20 @@ void Gesture_PID_Init(void)
 // 内环PID目标值来自外环输出, 单环调试时来自上位机
 void Update_Roll_w_Target(p_PID_TYPE PID)
 {
-//    PID->Target = Roll_PID.Output;
-	PID->Target = Roll_T;
+    //    PID->Target = Roll_PID.Output;
+    PID->Target = Roll_T;
 }
 
 void Update_Pitch_w_Target(p_PID_TYPE PID)
 {
-//    PID->Target = Pitch_PID.Output;
-	PID->Target = Pitch_T;
+    //    PID->Target = Pitch_PID.Output;
+    PID->Target = Pitch_T;
 }
 
 void Update_Yaw_w_Target(p_PID_TYPE PID)
 {
-//    PID->Target = Yaw_PID.Output;
-	PID->Target = Yaw_T;
+    //    PID->Target = Yaw_PID.Output;
+    PID->Target = Yaw_T;
 }
 
 // Roll_T, Pitch_T, Yaw_T是外环目标值, 来自遥控器
@@ -225,21 +219,20 @@ void Update_Yaw_Target(p_PID_TYPE PID)
     PID->Target = Yaw_T;
 }
 
-//! 好像没有用
 // 角速度计的值, 来自GY86的数据
 void Update_Roll_w_Feedback(p_PID_TYPE PID)
 {
-    PID->Feedback = Gyro_dps[1];
+    PID->Feedback = Gyro_int[1];
 }
 
 void Update_Pitch_w_Feedback(p_PID_TYPE PID)
 {
-    PID->Feedback = Gyro_dps[0];
+    PID->Feedback = Gyro_int[0];
 }
 
 void Update_Yaw_w_Feedback(p_PID_TYPE PID)
 {
-    PID->Feedback = Gyro_dps[2];
+    PID->Feedback = Gyro_int[2];
 }
 
 // Roll, Pitch, Yaw角来自姿态解算四元数转欧拉角后的欧拉角
