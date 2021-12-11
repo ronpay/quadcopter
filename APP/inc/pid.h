@@ -57,4 +57,5 @@ void Update_Feedback(p_PID_TYPE PID);
 void Update_Err(p_PID_TYPE PID);
 
 void PID_DEBUG_ANO_Send(Target_Type target, Feedback_Type* real);
+int Limit(int target,int min,int max);
 #endif /*__PID_H*/

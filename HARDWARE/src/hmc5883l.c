@@ -3,6 +3,7 @@
 #include "mpu6050.h"
 #include "stdio.h"
 #include "sysTick.h"
+#include "si2c.h"
 
 void HMC5883L_WriteReg(u8 reg_add, u8 reg_dat)
 {
@@ -52,7 +53,8 @@ void HMC5884LReadMe(int16_t* MeData)
 {
     u8 buf[6];
     // HMC5883L_ReadData(HMC_DATA_XMSB,buf,6);
-    HMC5883L_ReadData(HMC_DATA_XMSB, buf, 6);
+		i2cread(HMC_READ>>1, HMC_DATA_XMSB, 6, buf);
+	
     MeData[0] = (buf[0] << 8) | buf[1];
     MeData[2] = (buf[2] << 8) | buf[3];
     MeData[1] = (buf[4] << 8) | buf[5];

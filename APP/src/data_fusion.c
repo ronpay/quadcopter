@@ -35,7 +35,7 @@ void IMUupdate(float gx, float gy, float gz, float ax, float ay, float az, float
         return;
 
     if (mx * my * mz == 0)
-        return;
+//        return;
 
     norm = sqrt(ax * ax + ay * ay + az * az);  // acc数据归一化
     ax   = ax / norm;
@@ -142,40 +142,42 @@ void Attitude_Update(float gx, float gy, float gz, float ax, float ay, float az,
 
     //加速度计归一化，这就是为什么之前只要陀螺仪数据进行单位转换
     norm = invSqrt(ax * ax + ay * ay + az * az);
-    ax   = ax * norm;
-    ay   = ay * norm;
-    az   = az * norm;
+    ax = ax * norm;
+    ay = ay * norm;
+    az = az * norm;
     //计算上一时刻机体坐标系下加速度坐标
     vx = 2 * (q1q3 - q0q2);
     vy = 2 * (q0q1 + q2q3);
     vz = q0q0 - q1q1 - q2q2 + q3q3;
 
     //磁力计数据归一化
-    norm = invSqrt(mx * mx + my * my + mz * mz);
-    mx   = mx * norm;
-    my   = my * norm;
-    mz   = mz * norm;
-    //计算地理坐标系下磁力坐标（地理南北极）
-    hx = 2 * mx * (0.5f - q2q2 - q3q3) + 2 * my * (q1q2 - q0q3) + 2 * mz * (q1q3 + q0q2);
-    hy = 2 * mx * (q1q2 + q0q3) + 2 * my * (0.5f - q1q1 - q3q3) + 2 * mz * (q2q3 - q0q1);
-    hz = 2 * mx * (q1q3 - q0q2) + 2 * my * (q2q3 + q0q1) + 2 * mz * (0.5f - q1q1 - q2q2);
-    //（地磁南北极）因为地磁南北极与地理南北极有偏差
-    // bx=0;
-    by = sqrtf((hx * hx) + (hy * hy));
-    bz = hz;
-    //磁力转换回机体坐标系坐标
-    wx = 2 * by * (q1q2 + q0q3) + 2 * bz * (q1q3 - q0q2);
-    wy = 2 * by * (0.5f - q1q1 - q3q3) + 2 * bz * (q0q1 + q2q3);
-    wz = 2 * by * (q2q3 - q0q1) + 2 * bz * (0.5f - q1q1 - q2q2);
+//    norm = invSqrt(mx * mx + my * my + mz * mz);
+//    mx = mx * norm;
+//    my = my * norm;
+//    mz = mz * norm;
+//    //计算地理坐标系下磁力坐标（地理南北极）
+//    hx = 2 * mx * (0.5f - q2q2 - q3q3) + 2 * my * (q1q2 - q0q3) + 2 * mz * (q1q3 + q0q2);
+//    hy = 2 * mx * (q1q2 + q0q3) + 2 * my * (0.5f - q1q1 - q3q3) + 2 * mz * (q2q3 - q0q1);
+//    hz = 2 * mx * (q1q3 - q0q2) + 2 * my * (q2q3 + q0q1) + 2 * mz * (0.5f - q1q1 - q2q2);
+//    //（地磁南北极）因为地磁南北极与地理南北极有偏差
+//    //bx=0;
+//    by = sqrtf((hx * hx) + (hy * hy));
+//    bz = hz;
+//    //磁力转换回机体坐标系坐标
+//    wx = 2 * by * (q1q2 + q0q3) + 2 * bz * (q1q3 - q0q2);
+//    wy = 2 * by * (0.5f - q1q1 - q3q3) + 2 * bz * (q0q1 + q2q3);
+//    wz = 2 * by * (q2q3 - q0q1) + 2 * bz * (0.5f - q1q1 - q2q2);
 
     //误差计算（加速度和磁场强度一起）
-    ex = (ay * vz - az * vy) + (my * wz - mz * wy);
-    ey = (az * vx - ax * vz) + (mz * wx - mx * wz);
-    ez = (ax * vy - ay * vx) + (mx * wy - my * wx);
-
+//    ex = (ay * vz - az * vy) + (my * wz - mz * wy);
+//    ey = (az * vx - ax * vz) + (mz * wx - mx * wz);
+//    ez = (ax * vy - ay * vx) + (mx * wy - my * wx);
+    ex = (ay * vz - az * vy) ;
+    ey = (az * vx - ax * vz) ;
+    ez = (ax * vy - ay * vx) ;
     //由定时器获取采样周期的一半
 
-    // pi运算
+    //pi运算
     if (ex != 0.0f && ey != 0.0f && ez != 0.0f) {
         // 误差积分
         exInt += ex * Ki * halfT;
@@ -201,15 +203,17 @@ void Attitude_Update(float gx, float gy, float gz, float ax, float ay, float az,
 
     // 归一化四元数
     norm = invSqrt(q0 * q0 + q1 * q1 + q2 * q2 + q3 * q3);
-    q0   = q0 * norm;  // w
-    q1   = q1 * norm;  // x
-    q2   = q2 * norm;  // y
-    q3   = q3 * norm;  // z
+    q0 = q0 * norm; //w
+    q1 = q1 * norm; //x
+    q2 = q2 * norm; //y
+    q3 = q3 * norm; //z
 
     //四元数转欧拉角
-    Roll  = asin(2.0f * (q0 * q2 - q1 * q3)) * 57.3f;
-    Pitch = -atan2(2.0f * (q0 * q1 + q2 * q3), q0 * q0 - q1 * q1 - q2 * q2 + q3 * q3) * 57.3f;
-    Yaw   = atan2(2.0f * (q0 * q3 + q1 * q2), q0 * q0 + q1 * q1 - q2 * q2 - q3 * q3) * 57.3f;
+    Roll = asin(2.0f * (q0 * q2 - q1 * q3)) * 57.3f;
+		Pitch = 0;
+//    Pitch = -atan2(2.0f * (q0 * q1 + q2 * q3), q0 * q0 - q1 * q1 - q2 * q2 + q3 * q3) * 57.3f;
+//    Yaw = atan2(2.0f * (q0 * q3 + q1 * q2), q0 * q0 + q1 * q1 - q2 * q2 - q3 * q3) * 57.3f;
+		Yaw = 0;
 }
 
 void Quat_Init(void)

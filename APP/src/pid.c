@@ -93,6 +93,9 @@ void Update_Err(p_PID_TYPE PID)
     //	printf("PID->ErrAccu %f\n", PID->ErrAccu);
 }
 
+int Limit(int target,int min,int max){
+	return target<min?min:(target>max?max:target);
+}
 /**********Ϊ������������λ����Э�鶨��ı���****************************/
 // cupΪС��ģʽ�洢��Ҳ�����ڴ洢��ʱ�򣬵�λ������0�ֽڣ���λ��1�ֽ�
 //  #define BYTE0(dwTemp)       (*(char *)(&dwTemp))	 //ȡ��int�ͱ����ĵ��ֽ�

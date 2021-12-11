@@ -6,10 +6,10 @@ void IIC_Init(void)
     GPIO_InitTypeDef GPIO_InitStructure;
 
     // 使能GPIOB时钟
-    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
+//    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
 
     // 开漏输出Open-drain output
-    GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_7 | GPIO_Pin_8;
+    GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_8 | GPIO_Pin_9;
     GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_OUT;
     GPIO_InitStructure.GPIO_OType = GPIO_OType_OD;
     GPIO_InitStructure.GPIO_Speed = GPIO_High_Speed;
@@ -160,7 +160,7 @@ u8 I2C_ReceiveByte_WithACK(void)
 }
 
 // I2C写一个字节
-//void I2C_WriteByte(uint8_t DeviceAddr, uint8_t address, uint8_t data)
+// void I2C_WriteByte(uint8_t DeviceAddr, uint8_t address, uint8_t data)
 //{  //注意DeviceAddr为原始地址左移一位后的地址
 //    I2C_START();
 //    I2C_SendByte(DeviceAddr);
@@ -264,4 +264,14 @@ u8 i2cread(u8 dev_addr, u8 reg_addr, u8 i2c_len, u8* i2c_data_buf)
     }
     I2C_STOP();
     return 0x00;
+}
+
+void Delay_us(int8_t time)
+{
+    int8_t i = 0;
+    while (time--) {
+        i = 10;  //自己定义
+        while (i--)
+            ;
+    }
 }

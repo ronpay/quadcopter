@@ -11,6 +11,7 @@
 
 extern volatile float Pitch, Roll, Yaw;
 volatile float        Pitch_T, Roll_T, Yaw_T;
+extern float   Gyro_dps[3];
 
 PID_TYPE Roll_w_PID = {0}, Pitch_w_PID = {0}, Yaw_w_PID = {0};
 PID_TYPE Roll_PID = {0}, Pitch_PID = {0}, Yaw_PID = {0};
@@ -44,13 +45,14 @@ PID_TYPE Roll_PID = {0}, Pitch_PID = {0}, Yaw_PID = {0};
 #define PID_Angle_Pitch_Output_MAX 300
 #define PID_Angle_Yaw_Output_MAX 150
 
-#define KP 4.4;
+#define KP 1.0;
 #define KI 0.0;
 #define KD 0.0;
 
-#define KP_W 2.6;
-#define KI_W 0.5;
-#define KD_W 0.08;
+#define KP_W 3.0;
+//#define KP_W 0.53;
+#define KI_W 0.00;
+#define KD_W 0.00;
 void Gesture_PID_Init(void)
 {
     Gain_Type K_pid[3];
@@ -86,11 +88,11 @@ void Gesture_PID_Init(void)
     // 注册增益设置函数
     Pitch_w_PID.Set_PID_Arg_Handler = Set_PID_Arg;
     // 设置误差限幅
-    Roll_w_PID.Err_Max = PID_Angle_Pitch_Err_MAX;
+    Pitch_w_PID.Err_Max = PID_Angle_Pitch_Err_MAX;
     // 设置输出限幅
-    Roll_w_PID.Output_Max = PID_Angle_Pitch_Output_MAX;
+    Pitch_w_PID.Output_Max = PID_Angle_Pitch_Output_MAX;
     // 设置积分限幅
-    Roll_w_PID.Accu_Err_Max = PID_Angle_Pitch_AccuErr_MAX;
+    Pitch_w_PID.Accu_Err_Max = PID_Angle_Pitch_AccuErr_MAX;
     // 设置增益Kp, Ki, Kd
     K_pid[0] = KP_W;
     K_pid[1] = KI_W;
@@ -107,11 +109,11 @@ void Gesture_PID_Init(void)
     // 注册增益设置函数
     Yaw_w_PID.Set_PID_Arg_Handler = Set_PID_Arg;
     // 设置误差限幅
-    Roll_w_PID.Err_Max = PID_Angle_Yaw_Err_MAX;
+    Yaw_w_PID.Err_Max = PID_Angle_Yaw_Err_MAX;
     // 设置输出限幅
-    Roll_w_PID.Output_Max = PID_Angle_Yaw_Output_MAX;
+    Yaw_w_PID.Output_Max = PID_Angle_Yaw_Output_MAX;
     // 设置积分限幅
-    Roll_w_PID.Accu_Err_Max = PID_Angle_Yaw_AccuErr_MAX;
+    Yaw_w_PID.Accu_Err_Max = PID_Angle_Yaw_AccuErr_MAX;
     // 设置增益Kp, Ki, Kd
     K_pid[0] = KP_W;
     K_pid[1] = KI_W;
@@ -149,11 +151,11 @@ void Gesture_PID_Init(void)
     // 注册增益设置函数
     Pitch_PID.Set_PID_Arg_Handler = Set_PID_Arg;
     // 设置误差限幅
-    Roll_PID.Err_Max = PID_Rate_Pitch_Err_MAX;
+    Pitch_PID.Err_Max = PID_Rate_Pitch_Err_MAX;
     // 设置输出限幅
-    Roll_PID.Output_Max = PID_Angle_Pitch_Output_MAX;
+    Pitch_PID.Output_Max = PID_Angle_Pitch_Output_MAX;
     // 设置积分限幅
-    Roll_PID.Accu_Err_Max = PID_Angle_Pitch_AccuErr_MAX;
+    Pitch_PID.Accu_Err_Max = PID_Angle_Pitch_AccuErr_MAX;
     // 设置增益Kp, Ki, Kd
     K_pid[0] = KP;
     K_pid[1] = KI;
@@ -170,11 +172,11 @@ void Gesture_PID_Init(void)
     // 注册增益设置函数
     Yaw_PID.Set_PID_Arg_Handler = Set_PID_Arg;
     // 设置误差限幅
-    Roll_PID.Err_Max = PID_Rate_Yaw_Err_MAX;
+    Yaw_PID.Err_Max = PID_Rate_Yaw_Err_MAX;
     // 设置输出限幅
-    Roll_PID.Output_Max = PID_Angle_Yaw_Output_MAX;
+    Yaw_PID.Output_Max = PID_Angle_Yaw_Output_MAX;
     // 设置积分限幅
-    Roll_PID.Accu_Err_Max = PID_Angle_Yaw_AccuErr_MAX;
+    Yaw_PID.Accu_Err_Max = PID_Angle_Yaw_AccuErr_MAX;
     // 设置增益Kp, Ki, Kd
     K_pid[0] = KP;
     K_pid[1] = KI;
@@ -185,17 +187,20 @@ void Gesture_PID_Init(void)
 // 内环PID目标值来自外环输出, 单环调试时来自上位机
 void Update_Roll_w_Target(p_PID_TYPE PID)
 {
-    PID->Target = Roll_PID.Output;
+//    PID->Target = Roll_PID.Output;
+	PID->Target = Roll_T;
 }
 
 void Update_Pitch_w_Target(p_PID_TYPE PID)
 {
-    PID->Target = Pitch_PID.Output;
+//    PID->Target = Pitch_PID.Output;
+	PID->Target = Pitch_T;
 }
 
 void Update_Yaw_w_Target(p_PID_TYPE PID)
 {
-    PID->Target = Yaw_PID.Output;
+//    PID->Target = Yaw_PID.Output;
+	PID->Target = Yaw_T;
 }
 
 // Roll_T, Pitch_T, Yaw_T是外环目标值, 来自遥控器
@@ -218,17 +223,17 @@ void Update_Yaw_Target(p_PID_TYPE PID)
 // 角速度计的值, 来自GY86的数据
 void Update_Roll_w_Feedback(p_PID_TYPE PID)
 {
-    // PID->Feedback = Gyro.wx;
+    PID->Feedback = Gyro_dps[1];
 }
 
 void Update_Pitch_w_Feedback(p_PID_TYPE PID)
 {
-    // PID->Feedback = Gyro.wy;
+    PID->Feedback = Gyro_dps[0];
 }
 
 void Update_Yaw_w_Feedback(p_PID_TYPE PID)
 {
-    // PID->Feedback = Gyro.wz;
+    PID->Feedback = Gyro_dps[2];
 }
 
 // Roll, Pitch, Yaw角来自姿态解算四元数转欧拉角后的欧拉角

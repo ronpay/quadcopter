@@ -8,16 +8,16 @@ extern OS_EVENT* I2CSem;
 
 void USART6_IRQHandler(void)
 {
-#if OS_CRITICAL_METHOD == 3u /* Allocate storage for CPU status register */
-    OS_CPU_SR cpu_sr = 0u;
-#endif
-    OS_ENTER_CRITICAL();
-    OSIntEnter();
-    OS_EXIT_CRITICAL();
+//#if OS_CRITICAL_METHOD == 3u /* Allocate storage for CPU status register */
+//    OS_CPU_SR cpu_sr = 0u;
+//#endif
+//    OS_ENTER_CRITICAL();
+//    OSIntEnter();
+//    OS_EXIT_CRITICAL();
 
-    //    HM10_IRQ_IRQHandler();
+//    //    HM10_IRQ_IRQHandler();
 
-    OSIntExit();
+//    OSIntExit();
 }
 
 void TIM3_IRQHandler(void)
