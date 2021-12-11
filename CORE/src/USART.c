@@ -62,10 +62,10 @@ void USART6_Config(void)
     USART_Init(USART6, &USART_InitStructure);
 
     /* 嵌套向量中断控制器 NVIC 配置 */
-    NVIC_Configuration();
+//    NVIC_Configuration();
 
     /* 使能串口接收中断 */
-    USART_ITConfig(USART6, USART_IT_RXNE, ENABLE);
+//    USART_ITConfig(USART6, USART_IT_RXNE, ENABLE);
 
     /* 使能串口 */
     USART_Cmd(USART6, ENABLE);

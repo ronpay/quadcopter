@@ -109,7 +109,7 @@ void DATA_TRANSFER_TASK(void* pdata)
 {
     //    INT8U err;
     while (1) {
-        ANO_DT_Send_Status(Roll, Pitch, Yaw, timeCnt);
+        ANO_DT_Send_Status(Roll, Pitch, Yaw, 0);
 
         ANO_DT_Send_Senser(Acel_mps[0] * 100, Acel_mps[1] * 100, Acel_mps[2] * 100, Gyro_dps[0] * 100, Gyro_dps[1] * 100, Gyro_dps[2] * 100, 0);
         ANO_DT_Send_Senser2(Mag_raw[0], Mag_raw[1], Mag_raw[2], 0, 0, 0, 0);
@@ -142,12 +142,12 @@ void CONTROL_TASK(void* pdata)
 
         Attitude_Update(Gyro_dps[0], Gyro_dps[1], Gyro_dps[2], Acel_mps[0], Acel_mps[1], Acel_mps[2], Mag_gs[0], Mag_gs[1], Mag_gs[2]);
 
-        if (cnt == 0) {
-            /* 外环任务 */
-            PID_Cycle(&Roll_PID);
-            PID_Cycle(&Pitch_PID);
-            PID_Cycle(&Yaw_PID);
-        }
+//        if (cnt == 0) {
+//            /* 外环任务 */
+//            PID_Cycle(&Roll_PID);
+//            PID_Cycle(&Pitch_PID);
+//            PID_Cycle(&Yaw_PID);
+//        }
 
         /* 内环任务 */
         PID_Cycle(&Roll_w_PID);

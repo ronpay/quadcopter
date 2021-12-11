@@ -7,7 +7,7 @@ volatile float Pitch, Roll, Yaw;
 
 #define Kp 2.0f       // proportional gain governs rate of convergence to accelerometer/magnetometer
 #define Ki 0.005f     // integral gain governs rate of convergence of gyroscope biases
-#define halfT 0.005f  // half the sample period采样周期的一半
+#define halfT 0.0025f  // half the sample period采样周期的一半
 
 extern int16_t Mag_gs[3];
 
@@ -209,9 +209,10 @@ void Attitude_Update(float gx, float gy, float gz, float ax, float ay, float az,
     q3 = q3 * norm; //z
 
     //四元数转欧拉角
-    Roll = asin(2.0f * (q0 * q2 - q1 * q3)) * 57.3f;
-		Pitch = 0;
-//    Pitch = -atan2(2.0f * (q0 * q1 + q2 * q3), q0 * q0 - q1 * q1 - q2 * q2 + q3 * q3) * 57.3f;
+   // Roll = asin(2.0f * (q0 * q2 - q1 * q3)) * 57.3f;
+	 Roll=0;
+//		Pitch = 0;
+    Pitch = -atan2(2.0f * (q0 * q1 + q2 * q3), q0 * q0 - q1 * q1 - q2 * q2 + q3 * q3) * 57.3f;
 //    Yaw = atan2(2.0f * (q0 * q3 + q1 * q2), q0 * q0 + q1 * q1 - q2 * q2 - q3 * q3) * 57.3f;
 		Yaw = 0;
 }
