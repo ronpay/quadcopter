@@ -49,10 +49,16 @@ PID_TYPE Roll_PID = {0}, Pitch_PID = {0}, Yaw_PID = {0};
 #define KI 0.0;
 #define KD 0.0;
 
+<<<<<<< HEAD
 #define KP_W 3.0;
 //#define KP_W 0.53;
 #define KI_W 0.00;
 #define KD_W 0.00;
+=======
+#define KP_W 2.6;
+#define KI_W 0.0;
+#define KD_W 0.08;
+>>>>>>> be45da876f9f3ef471b85f744006b49b2b0a0f00
 void Gesture_PID_Init(void)
 {
     Gain_Type K_pid[3];

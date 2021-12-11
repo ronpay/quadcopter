@@ -32,8 +32,12 @@ void Receiver_IRQ_Handler(void)
             case 1:
                 CapVal[receiverNum] = TIM_GetCapture1(TIM3);
                 Duty[receiverNum]   = CapVal[receiverNum] % Cycle;
+<<<<<<< HEAD
 //								Roll_T              = (Duty[receiverNum] - 1500) / 500.0f * Roll_Range;
 						Yaw_T               = (Duty[receiverNum] - 1500) / 500.0f * Yaw_Range;
+=======
+								Roll_T              = (Duty[receiverNum] - 1500) / 500.0f * Roll_Range;
+>>>>>>> be45da876f9f3ef471b85f744006b49b2b0a0f00
                 TIM_OC1PolarityConfig(TIM3, TIM_ICPolarity_Rising);
                 captureFlag[receiverNum] = 0;
 
@@ -81,7 +85,11 @@ void Receiver_IRQ_Handler(void)
             case 1:
                 CapVal[receiverNum] = TIM_GetCapture3(TIM3);
                 Duty[receiverNum]   = CapVal[receiverNum] % Cycle;
+<<<<<<< HEAD
 								Base_CCR            = 400+(Duty[receiverNum]-1000)*3/4;
+=======
+								Base_CCR            = Duty[receiverNum];
+>>>>>>> be45da876f9f3ef471b85f744006b49b2b0a0f00
                 TIM_OC3PolarityConfig(TIM3, TIM_ICPolarity_Rising);
                 captureFlag[receiverNum] = 0;
 
@@ -105,8 +113,12 @@ void Receiver_IRQ_Handler(void)
             case 1:
                 CapVal[receiverNum] = TIM_GetCapture4(TIM3);
                 Duty[receiverNum]   = CapVal[receiverNum] % Cycle;
+<<<<<<< HEAD
 //								Yaw_T               = (Duty[receiverNum] - 1500) / 500.0f * Yaw_Range;
 						Roll_T              = (Duty[receiverNum] - 1500) / 500.0f * Roll_Range;
+=======
+								Yaw_T               = (Duty[receiverNum] - 1500) / 500.0f * Yaw_Range;
+>>>>>>> be45da876f9f3ef471b85f744006b49b2b0a0f00
                 TIM_OC4PolarityConfig(TIM3, TIM_ICPolarity_Rising);
                 captureFlag[receiverNum] = 0;
         }

@@ -140,6 +140,10 @@ void DATA_FUSION_TASK(void* pdata)
         //    OS_CPU_SR cpu_sr = 0u;
         //#endif
         //		OS_ENTER_CRITICAL();
+<<<<<<< HEAD
+=======
+				OSSemPend(SensorSem, 2, &err);
+>>>>>>> be45da876f9f3ef471b85f744006b49b2b0a0f00
 #if DMP
 // mpu_dmp_get_data(&Pitch,&Roll,&Yaw);
 #else
@@ -151,7 +155,11 @@ void DATA_FUSION_TASK(void* pdata)
 #endif
         //			OSSemPost(I2CSem);
         //			OS_EXIT_CRITICAL();
+<<<<<<< HEAD
         OSTimeDly(5);
+=======
+        OSTimeDly(10);
+>>>>>>> be45da876f9f3ef471b85f744006b49b2b0a0f00
     }
 }
 
@@ -218,7 +226,11 @@ void Quadcopter_Imple_Task(void* pdata)
             Motor_Set(Servo_PWM[i], i + 1);
         }
 
+<<<<<<< HEAD
         OSTimeDly(5);
+=======
+        OSTimeDly(10);
+>>>>>>> be45da876f9f3ef471b85f744006b49b2b0a0f00
     }
 }
 
@@ -233,7 +245,11 @@ void Quadcopter_Control_Task(void* pdata)
         for (int i = 0; i < 5; i++) {
             OSSemPost(PIDSem);
         }
+<<<<<<< HEAD
         OSTimeDly(25);
+=======
+        OSTimeDly(50);
+>>>>>>> be45da876f9f3ef471b85f744006b49b2b0a0f00
     }
 }
 
