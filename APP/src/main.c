@@ -1,8 +1,7 @@
-#include "stm32f4xx.h"
-#include "ucos_ii.h"
 #include "ahrs.h"
 #include "data_fusion.h"
 #include "data_transfer.h"
+#include "filter.h"
 #include "hm10.h"
 #include "hmc5883l.h"
 #include "inv_mpu.h"
@@ -13,7 +12,9 @@
 #include "quad_pid.h"
 #include "receiver.h"
 #include "si2c.h"
+#include "stm32f4xx.h"
 #include "sysTick.h"
+#include "ucos_ii.h"
 
 OS_EVENT* PIDSem;
 OS_EVENT* SensorSem;
@@ -61,14 +62,17 @@ static OS_STK DATA_TRANSFER_TASK_STK[DATA_TRANSFER_STK_SIZE];
 
 int   timeCnt = 0;
 float T       = 0.005;
-int cnt=0;
+int   cnt     = 0;
+
+/* for filter */
+#define GYRO_LPF_CUTOFF_FREQ 80.0f
+biquadFilter_t gyroFilterLPF[3];
 
 void INIT_TASK(void* pdata)
 {
     HM10_Config();
 
     Delay_s(1);
-
 
 #if RECEIVER
     Receiver_Config();
@@ -78,7 +82,7 @@ void INIT_TASK(void* pdata)
     Motor_Config();
     Motor_Unlock();
 #endif
-	
+
 #if DMP
     // with dmp
     MPU6050_Config();
@@ -102,11 +106,15 @@ void INIT_TASK(void* pdata)
     GY86_SelfTest();
 #endif
 
-		Quat_Init();
+    Quat_Init();
 
 #if PID
     Gesture_PID_Init();
 #endif
+
+    for (int axis = 0; axis < 3; axis++) {
+        biquadFilterInitLPF(&gyroFilterLPF[axis], 500, GYRO_LPF_CUTOFF_FREQ);
+    }
 }
 
 void DATA_TRANSFER_TASK(void* pdata)
@@ -139,15 +147,19 @@ void CONTROL_TASK(void* pdata)
         Read_Accel_MPS();
         Read_Gyro_DPS();
         Read_Mag_Gs();
-		
+
+        for (int axis = 0; axis < 3; axis++) {
+            Gyro_dps[axis] = biquadFilterApply(&gyroFilterLPF[axis], Gyro_dps[axis]);
+        }
+
         Attitude_Update(Gyro_dps[0], Gyro_dps[1], Gyro_dps[2], Acel_mps[0], Acel_mps[1], Acel_mps[2], Mag_gs[0], Mag_gs[1], Mag_gs[2]);
-		
-					if (1) {
-							/* 外环任务 */
-							PID_Cycle(&Roll_PID);
-							PID_Cycle(&Pitch_PID);
-							PID_Cycle(&Yaw_PID);
-					}
+
+        if (1) {
+            /* 外环任务 */
+            PID_Cycle(&Roll_PID);
+            PID_Cycle(&Pitch_PID);
+            PID_Cycle(&Yaw_PID);
+        }
 
         /* 内环任务 */
         PID_Cycle(&Roll_w_PID);
@@ -171,10 +183,10 @@ void CONTROL_TASK(void* pdata)
                 Servo_PWM[i] = 0;
         }
 
-//        if (Roll > 85 || Roll < -85 || Pitch > 85 || Pitch < -85) {
-//            for (int i = 0; i < 4; i++)
-//                Servo_PWM[i] = BASE_MIN;
-//        }
+        //        if (Roll > 85 || Roll < -85 || Pitch > 85 || Pitch < -85) {
+        //            for (int i = 0; i < 4; i++)
+        //                Servo_PWM[i] = BASE_MIN;
+        //        }
         if (Base_CCR <= 550) {
             for (int i = 0; i < 4; i++) {
                 Servo_PWM[i] = 400;
@@ -184,13 +196,13 @@ void CONTROL_TASK(void* pdata)
             Motor_Set(Servo_PWM[i], i + 1);
         }
 
-//        cnt++;
-//        timeCnt++;
-//        cnt %= 5;
-				cnt++;
-				if(cnt%1000==0){
-					printf("%d\n",cnt);
-				}
+        //        cnt++;
+        //        timeCnt++;
+        //        cnt %= 5;
+        // cnt++;
+        // if (cnt % 1000 == 0) {
+        //     printf("%d\n", cnt);
+        // }
         OSTimeDly(4);
     }
 }

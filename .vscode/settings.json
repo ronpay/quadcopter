@@ -4,6 +4,7 @@
         "data_transfer.h": "c",
         "math.h": "c",
         "data_fusion.h": "c",
-        "stdint.h": "c"
+        "stdint.h": "c",
+        "filter.h": "c"
     }
 }
