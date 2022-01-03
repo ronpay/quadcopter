@@ -209,12 +209,12 @@ void Attitude_Update(float gx, float gy, float gz, float ax, float ay, float az,
     q3 = q3 * norm; //z
 
     //四元数转欧拉角
-   // Roll = asin(2.0f * (q0 * q2 - q1 * q3)) * 57.3f;
-	 Roll=0;
+    Roll = asin(2.0f * (q0 * q2 - q1 * q3)) * 57.3f;
+	 //Roll=0;
 //		Pitch = 0;
     Pitch = -atan2(2.0f * (q0 * q1 + q2 * q3), q0 * q0 - q1 * q1 - q2 * q2 + q3 * q3) * 57.3f;
-//    Yaw = atan2(2.0f * (q0 * q3 + q1 * q2), q0 * q0 + q1 * q1 - q2 * q2 - q3 * q3) * 57.3f;
-		Yaw = 0;
+    Yaw = atan2(2.0f * (q0 * q3 + q1 * q2), q0 * q0 + q1 * q1 - q2 * q2 - q3 * q3) * 57.3f;
+		//Yaw = 0;
 }
 
 void Quat_Init(void)
@@ -231,8 +231,9 @@ void Quat_Init(void)
     //求出初始欧拉角，初始状态水平，所以roll、pitch为0
     initRoll  = 0.0f;
     initPitch = 0.0f;
-    initYaw   = atan2(initMx * cos(initRoll) + initMy * sin(initRoll) * sin(initPitch) + initMz * sin(initRoll) * cos(initPitch),
-                      initMy * cos(initPitch) - initMz * sin(initPitch));
+		initYaw = 0.0f;
+//    initYaw   = atan2(initMx * cos(initRoll) + initMy * sin(initRoll) * sin(initPitch) + initMz * sin(initRoll) * cos(initPitch),
+//                      initMy * cos(initPitch) - initMz * sin(initPitch));
 
     // 四元数计算
     q0 = cos(0.5f * initRoll) * cos(0.5f * initPitch) * cos(0.5f * initYaw) + sin(0.5f * initRoll) * sin(0.5f * initPitch) * sin(0.5f * initYaw);  // w

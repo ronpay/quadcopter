@@ -1,6 +1,5 @@
 #include "stm32f4xx.h"
 #include "ucos_ii.h"
-
 #include "ahrs.h"
 #include "data_fusion.h"
 #include "data_transfer.h"
@@ -62,6 +61,7 @@ static OS_STK DATA_TRANSFER_TASK_STK[DATA_TRANSFER_STK_SIZE];
 
 int   timeCnt = 0;
 float T       = 0.005;
+int cnt=0;
 
 void INIT_TASK(void* pdata)
 {
@@ -69,14 +69,16 @@ void INIT_TASK(void* pdata)
 
     Delay_s(1);
 
-#if MOTOR
-    Motor_Config();
-    Motor_Unlock();
-#endif
+
 #if RECEIVER
     Receiver_Config();
 #endif
 
+#if MOTOR
+    Motor_Config();
+    Motor_Unlock();
+#endif
+	
 #if DMP
     // with dmp
     MPU6050_Config();
@@ -99,10 +101,12 @@ void INIT_TASK(void* pdata)
     IIC_Init();
     GY86_SelfTest();
 #endif
+
+		Quat_Init();
+
 #if PID
     Gesture_PID_Init();
 #endif
-    Quat_Init();
 }
 
 void DATA_TRANSFER_TASK(void* pdata)
@@ -123,7 +127,7 @@ void DATA_TRANSFER_TASK(void* pdata)
         ANO_DT_Send_Control_Status(Roll_w_PID.Output, Pitch_w_PID.Output, Base_CCR, Yaw_w_PID.Output);
 #endif
 
-        OSTimeDly(20);
+        OSTimeDly(25);
     }
 }
 
@@ -135,19 +139,15 @@ void CONTROL_TASK(void* pdata)
         Read_Accel_MPS();
         Read_Gyro_DPS();
         Read_Mag_Gs();
-
-        for (int i = 0; i < 3; i++) {
-            Gyro_int[i] += Gyro_dps[i] * 57.2957795f * T;
-        }
-
+		
         Attitude_Update(Gyro_dps[0], Gyro_dps[1], Gyro_dps[2], Acel_mps[0], Acel_mps[1], Acel_mps[2], Mag_gs[0], Mag_gs[1], Mag_gs[2]);
-
-//        if (cnt == 0) {
-//            /* 外环任务 */
-//            PID_Cycle(&Roll_PID);
-//            PID_Cycle(&Pitch_PID);
-//            PID_Cycle(&Yaw_PID);
-//        }
+		
+					if (1) {
+							/* 外环任务 */
+							PID_Cycle(&Roll_PID);
+							PID_Cycle(&Pitch_PID);
+							PID_Cycle(&Yaw_PID);
+					}
 
         /* 内环任务 */
         PID_Cycle(&Roll_w_PID);
@@ -171,10 +171,10 @@ void CONTROL_TASK(void* pdata)
                 Servo_PWM[i] = 0;
         }
 
-        if (Roll > 65 || Roll < -65 || Pitch > 65 || Pitch < -65) {
-            for (int i = 0; i < 4; i++)
-                Servo_PWM[i] = BASE_MIN;
-        }
+//        if (Roll > 85 || Roll < -85 || Pitch > 85 || Pitch < -85) {
+//            for (int i = 0; i < 4; i++)
+//                Servo_PWM[i] = BASE_MIN;
+//        }
         if (Base_CCR <= 550) {
             for (int i = 0; i < 4; i++) {
                 Servo_PWM[i] = 400;
@@ -184,11 +184,14 @@ void CONTROL_TASK(void* pdata)
             Motor_Set(Servo_PWM[i], i + 1);
         }
 
-        cnt++;
-        timeCnt++;
-        cnt %= 5;
-
-        OSTimeDly(5);
+//        cnt++;
+//        timeCnt++;
+//        cnt %= 5;
+				cnt++;
+				if(cnt%1000==0){
+					printf("%d\n",cnt);
+				}
+        OSTimeDly(4);
     }
 }
 

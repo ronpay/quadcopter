@@ -23,9 +23,9 @@ PID_TYPE Roll_PID = {0}, Pitch_PID = {0}, Yaw_PID = {0};
 #define PID_Rate_Pitch_Err_MAX 180
 #define PID_Rate_Yaw_Err_MAX 180
 
-#define PID_Rate_Roll_AccuErr_MAX 200 /* 积分限幅 */
-#define PID_Rate_Pitch_AccuErr_MAX 200
-#define PID_Rate_Yaw_AccuErr_MAX 100
+#define PID_Rate_Roll_AccuErr_MAX 10 /* 积分限幅 */
+#define PID_Rate_Pitch_AccuErr_MAX 5
+#define PID_Rate_Yaw_AccuErr_MAX 10
 
 #define PID_Rate_Roll_Output_MAX 500 /* 输出限幅 */
 #define PID_Rate_Pitch_Output_MAX 500
@@ -37,22 +37,39 @@ PID_TYPE Roll_PID = {0}, Pitch_PID = {0}, Yaw_PID = {0};
 #define PID_Angle_Pitch_Err_MAX 180
 #define PID_Angle_Yaw_Err_MAX 180
 
-#define PID_Angle_Roll_AccuErr_MAX 1200  // TODO
-#define PID_Angle_Pitch_AccuErr_MAX 1200
-#define PID_Angle_Yaw_AccuErr_MAX 1200
+#define PID_Angle_Roll_AccuErr_MAX 300  // TODO
+#define PID_Angle_Pitch_AccuErr_MAX 300
+#define PID_Angle_Yaw_AccuErr_MAX 300
 
 #define PID_Angle_Roll_Output_MAX 300
 #define PID_Angle_Pitch_Output_MAX 300
 #define PID_Angle_Yaw_Output_MAX 150
 
-#define KP 1.0;
-#define KI 0.0;
-#define KD 0.0;
+#define KP_PITCH 2.0
+#define KI_PITCH 0.0
+#define KD_PITCH 0.0
 
-#define KP_W 2.0;
-//#define KP_W 0.53;
-#define KI_W 0.00;
-#define KD_W 0.0001;
+#define KP_W_PITCH 1.1
+//#define KP_W 0.55 /*0.53 */
+#define KI_W_PITCH 0.001
+#define KD_W_PITCH 15
+
+#define KP_ROLL 2.2
+#define KI_ROLL 0.0
+#define KD_ROLL 0.0
+
+#define KP_W_ROLL 1.2
+#define KI_W_ROLL 0.000
+#define KD_W_ROLL 10
+
+#define KP_YAW 2.0
+#define KI_YAW 0.0
+#define KD_YAW 0.0
+
+#define KP_W_YAW 2.4
+#define KI_W_YAW 0.005
+#define KD_W_YAW 1.0
+
 void Gesture_PID_Init(void)
 {
     Gain_Type K_pid[3];
@@ -73,9 +90,9 @@ void Gesture_PID_Init(void)
     // 设置积分限幅
     Roll_w_PID.Accu_Err_Max = PID_Angle_Roll_AccuErr_MAX;
     // 设置增益Kp, Ki, Kd
-    K_pid[0] = KP_W;
-    K_pid[1] = KI_W;
-    K_pid[2] = KD_W;
+    K_pid[0] = KP_W_ROLL;
+    K_pid[1] = KI_W_ROLL;
+    K_pid[2] = KD_W_ROLL;
     Roll_w_PID.Set_PID_Arg_Handler(&Roll_w_PID, K_pid);
 
     PID_Init(&Pitch_w_PID);
@@ -94,9 +111,9 @@ void Gesture_PID_Init(void)
     // 设置积分限幅
     Pitch_w_PID.Accu_Err_Max = PID_Angle_Pitch_AccuErr_MAX;
     // 设置增益Kp, Ki, Kd
-    K_pid[0] = KP_W;
-    K_pid[1] = KI_W;
-    K_pid[2] = KD_W;
+    K_pid[0] = KP_W_PITCH;
+    K_pid[1] = KI_W_PITCH;
+    K_pid[2] = KD_W_PITCH;
     Pitch_w_PID.Set_PID_Arg_Handler(&Pitch_w_PID, K_pid);
 
     PID_Init(&Yaw_w_PID);
@@ -115,9 +132,9 @@ void Gesture_PID_Init(void)
     // 设置积分限幅
     Yaw_w_PID.Accu_Err_Max = PID_Angle_Yaw_AccuErr_MAX;
     // 设置增益Kp, Ki, Kd
-    K_pid[0] = KP_W;
-    K_pid[1] = KI_W;
-    K_pid[2] = KD_W;
+    K_pid[0] = KP_W_YAW;
+    K_pid[1] = KI_W_YAW;
+    K_pid[2] = KD_W_YAW;
     Yaw_w_PID.Set_PID_Arg_Handler(&Yaw_w_PID, K_pid);
 
     PID_Init(&Roll_PID);
@@ -136,9 +153,9 @@ void Gesture_PID_Init(void)
     // 设置积分限幅
     Roll_PID.Accu_Err_Max = PID_Angle_Roll_AccuErr_MAX;
     // 设置增益Kp, Ki, Kd
-    K_pid[0] = KP;
-    K_pid[1] = KI;
-    K_pid[2] = KD;
+    K_pid[0] = KP_ROLL;
+    K_pid[1] = KI_ROLL;
+    K_pid[2] = KD_ROLL;
     Roll_PID.Set_PID_Arg_Handler(&Roll_PID, K_pid);
 
     PID_Init(&Pitch_PID);
@@ -157,9 +174,9 @@ void Gesture_PID_Init(void)
     // 设置积分限幅
     Pitch_PID.Accu_Err_Max = PID_Angle_Pitch_AccuErr_MAX;
     // 设置增益Kp, Ki, Kd
-    K_pid[0] = KP;
-    K_pid[1] = KI;
-    K_pid[2] = KD;
+    K_pid[0] = KP_PITCH;
+    K_pid[1] = KI_PITCH;
+    K_pid[2] = KD_PITCH;
     Pitch_PID.Set_PID_Arg_Handler(&Pitch_PID, K_pid);
 
     PID_Init(&Yaw_PID);
@@ -178,63 +195,69 @@ void Gesture_PID_Init(void)
     // 设置积分限幅
     Yaw_PID.Accu_Err_Max = PID_Angle_Yaw_AccuErr_MAX;
     // 设置增益Kp, Ki, Kd
-    K_pid[0] = KP;
-    K_pid[1] = KI;
-    K_pid[2] = KD;
+    K_pid[0] = KP_YAW;
+    K_pid[1] = KI_YAW;
+    K_pid[2] = KD_YAW;
     Yaw_PID.Set_PID_Arg_Handler(&Yaw_PID, K_pid);
 }
 
 // 内环PID目标值来自外环输出, 单环调试时来自上位机
 void Update_Roll_w_Target(p_PID_TYPE PID)
 {
-//    PID->Target = Roll_PID.Output;
-		PID->Target = Roll_T;
+    PID->Target = Roll_PID.Output;
+		//PID->Target = Roll_T;
+	//PID->Target = 0;
 }
 
 void Update_Pitch_w_Target(p_PID_TYPE PID)
 {
-//    PID->Target = Pitch_PID.Output;
-		PID->Target =  Pitch_T;
+  // PID->Target = Pitch_PID.Output;
+	//PID->Target =  Pitch_T;
+	PID->Target = 0;
 }
 
 void Update_Yaw_w_Target(p_PID_TYPE PID)
 {
-//    PID->Target = Yaw_PID.Output;
-		PID->Target = Yaw_T;
+   // PID->Target = Yaw_PID.Output;
+	//PID->Target = Yaw_T;
+		PID->Target = 0;
 }
 
 // Roll_T, Pitch_T, Yaw_T是外环目标值, 来自遥控器
 void Update_Roll_Target(p_PID_TYPE PID)
 {
     PID->Target = Roll_T;
+		//PID->Target = 0;
 }
 
 void Update_Pitch_Target(p_PID_TYPE PID)
 {
-    PID->Target = Pitch_T;
+    //PID->Target = Pitch_T;
+		PID->Target = 0;
 }
 
 void Update_Yaw_Target(p_PID_TYPE PID)
 {
-    PID->Target = Yaw_T;
+  // PID->Target = Yaw_T;
+	PID->Target = 0;
 }
 
 // 角速度计的值, 来自GY86的数据
 void Update_Roll_w_Feedback(p_PID_TYPE PID)
 {
-//    PID->Feedback = Gyro_dps[1]*57.3;
-		PID->Feedback =0;
+   PID->Feedback = Gyro_dps[1]*57.3;
+		//PID->Feedback =0;
 }
 
 void Update_Pitch_w_Feedback(p_PID_TYPE PID)
 {
-    PID->Feedback = -Gyro_dps[0]*57.3;
-//		PID->Feedback =0;
+  // PID->Feedback = -Gyro_dps[0]*57.3;
+	PID->Feedback =0;
 }
 
 void Update_Yaw_w_Feedback(p_PID_TYPE PID)
 {
-   // PID->Feedback = Gyro_int[2]*57.3;
+  // PID->Feedback = Gyro_dps[2]*57.3;
 	PID->Feedback =0;
 }
 
@@ -242,14 +265,17 @@ void Update_Yaw_w_Feedback(p_PID_TYPE PID)
 void Update_Roll_Feedback(p_PID_TYPE PID)
 {
     PID->Feedback = Roll;
+	//PID->Feedback = 0;
 }
 
 void Update_Pitch_Feedback(p_PID_TYPE PID)
 {
-    PID->Feedback = Pitch;
+  //  PID->Feedback = Pitch;
+	PID->Feedback = 0;
 }
 
 void Update_Yaw_Feedback(p_PID_TYPE PID)
 {
-    PID->Feedback = Yaw;
+  // PID->Feedback = Yaw;
+	PID->Feedback = 0;
 }
