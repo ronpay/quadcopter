@@ -1,12 +1,3 @@
-/**
- * @file  		quad_pid.c
- * @brief 		四轴飞行器姿态控制PID代码
- * @author   	Haozhe Tang
- * @date     	2021-11-12
- * @version   	A001
- * @copyright 	Haozhe Tang
- */
-
 #include "quad_pid.h"
 
 extern volatile float Pitch, Roll, Yaw;
@@ -45,30 +36,31 @@ PID_TYPE Roll_PID = {0}, Pitch_PID = {0}, Yaw_PID = {0};
 #define PID_Angle_Pitch_Output_MAX 300
 #define PID_Angle_Yaw_Output_MAX 150
 
-#define KP_PITCH 2.0
+#define KP_PITCH 2.2
 #define KI_PITCH 0.0
 #define KD_PITCH 0.0
 
 #define KP_W_PITCH 1.1
 //#define KP_W 0.55 /*0.53 */
-#define KI_W_PITCH 0.001
-#define KD_W_PITCH 15
+#define KI_W_PITCH 0.0003
+#define KD_W_PITCH 10
 
 #define KP_ROLL 2.2
 #define KI_ROLL 0.0
 #define KD_ROLL 0.0
 
-#define KP_W_ROLL 1.2
-#define KI_W_ROLL 0.000
+#define KP_W_ROLL 1.1
+
+#define KI_W_ROLL 0.0003
 #define KD_W_ROLL 10
 
 #define KP_YAW 2.0
-#define KI_YAW 0.0
+#define KI_YAW 0.00
 #define KD_YAW 0.0
 
-#define KP_W_YAW 2.4
-#define KI_W_YAW 0.005
-#define KD_W_YAW 1.0
+#define KP_W_YAW 1.1
+#define KI_W_YAW 0.0003
+#define KD_W_YAW 10
 
 void Gesture_PID_Init(void)
 {
@@ -205,77 +197,62 @@ void Gesture_PID_Init(void)
 void Update_Roll_w_Target(p_PID_TYPE PID)
 {
     PID->Target = Roll_PID.Output;
-		//PID->Target = Roll_T;
-	//PID->Target = 0;
 }
 
 void Update_Pitch_w_Target(p_PID_TYPE PID)
 {
-  // PID->Target = Pitch_PID.Output;
-	//PID->Target =  Pitch_T;
-	PID->Target = 0;
+    PID->Target = Pitch_PID.Output;
 }
 
 void Update_Yaw_w_Target(p_PID_TYPE PID)
 {
-   // PID->Target = Yaw_PID.Output;
-	//PID->Target = Yaw_T;
-		PID->Target = 0;
+    PID->Target = Yaw_PID.Output;
 }
 
 // Roll_T, Pitch_T, Yaw_T是外环目标值, 来自遥控器
 void Update_Roll_Target(p_PID_TYPE PID)
 {
     PID->Target = Roll_T;
-		//PID->Target = 0;
 }
 
 void Update_Pitch_Target(p_PID_TYPE PID)
 {
-    //PID->Target = Pitch_T;
-		PID->Target = 0;
+    PID->Target = Pitch_T;
 }
 
 void Update_Yaw_Target(p_PID_TYPE PID)
 {
-  // PID->Target = Yaw_T;
-	PID->Target = 0;
+    PID->Target = Yaw_T;
 }
 
 // 角速度计的值, 来自GY86的数据
 void Update_Roll_w_Feedback(p_PID_TYPE PID)
 {
-   PID->Feedback = Gyro_dps[1]*57.3;
-		//PID->Feedback =0;
+    PID->Feedback = Gyro_dps[1] * 57.3;
 }
 
 void Update_Pitch_w_Feedback(p_PID_TYPE PID)
 {
-  // PID->Feedback = -Gyro_dps[0]*57.3;
-	PID->Feedback =0;
+    PID->Feedback = -Gyro_dps[0] * 57.3;
 }
 
 void Update_Yaw_w_Feedback(p_PID_TYPE PID)
 {
-  // PID->Feedback = Gyro_dps[2]*57.3;
-	PID->Feedback =0;
+    PID->Feedback = Gyro_dps[2] * 57.3;
 }
 
 // Roll, Pitch, Yaw角来自姿态解算四元数转欧拉角后的欧拉角
 void Update_Roll_Feedback(p_PID_TYPE PID)
 {
     PID->Feedback = Roll;
-	//PID->Feedback = 0;
 }
 
 void Update_Pitch_Feedback(p_PID_TYPE PID)
 {
-  //  PID->Feedback = Pitch;
-	PID->Feedback = 0;
+    PID->Feedback = Pitch;
 }
 
 void Update_Yaw_Feedback(p_PID_TYPE PID)
 {
-  // PID->Feedback = Yaw;
-	PID->Feedback = 0;
+    PID->Feedback = Yaw;
 }

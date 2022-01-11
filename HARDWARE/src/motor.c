@@ -7,17 +7,12 @@ void Motor_Config(void)
 
 void Motor_Unlock(void)
 {
-//    TIM_SetCompare1(TIM2, 1000);
-//    TIM_SetCompare2(TIM2, 1000);
-//    TIM_SetCompare3(TIM2, 1000);
-//    TIM_SetCompare4(TIM2, 1000);
-//    Delay_ms(2000);
     TIM_SetCompare1(TIM2, 500);
     TIM_SetCompare2(TIM2, 500);
     TIM_SetCompare3(TIM2, 500);
     TIM_SetCompare4(TIM2, 500);
     Delay_ms(2000);
-		TIM_SetCompare1(TIM2, 0);
+    TIM_SetCompare1(TIM2, 0);
     TIM_SetCompare2(TIM2, 0);
     TIM_SetCompare3(TIM2, 0);
     TIM_SetCompare4(TIM2, 0);

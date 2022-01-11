@@ -1,19 +1,10 @@
 #include "filter.h"
 #include "maths.h"
-//#include "pid_para.h"
 #include "stm32f4xx.h"
 #include <math.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
-/*********************
- *
- *项目：森林火灾无人机
- *创建时间：2021.7.18
- *创建人：toeveryone_zxy
- *版本:v1.0
- *
- * *********************/
 
 //本文件为低通滤波器，提升微分器的稳定性
 

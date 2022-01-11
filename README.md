@@ -1,14 +1,27 @@
-# quadcopter
+# Quadcopter
 
-A project that transplanting the μC/OS-II System to STM32F401 board. 
+It's a quadcopter based on STM32F401RE.
 
-# Introduce
+# Hardware
 
-STM32F401-ucosII-project is a project that transplanting the μC/OS-II System to STM32F401 board. 
-
-The project can drive HM-10 Bluetooth module, GY-86 Sensor module, Oled module ,Receiver module and motor module. The purpose of our project is creating a quadcopter.
+|    Components     |                     Model                      |
+| :---------------: | :--------------------------------------------: |
+| Development Board |                  STM32F401RE                   |
+|  Quadcopter Rack  |                      F450                      |
+|      Paddle       |                      1045                      |
+|        ESC        |            Hobbywing SkyWalker 20A             |
+|       Motor       |                  A2212 1000KV                  |
+|        IMU        |                    MPU6050                     |
+|   Magnetometer    |                    HMC5883L                    |
+|     Bluetooth     |                 HM-10 & HM-15                  |
+|  Expansion Board  | Design with Altium Designer<br>Produced by JLC |
+|      Battery      |             Grepow  3S 2200mAh 25c             |
+| Remote Controller |                 Flysky fs-I6x                  |
+|  Remote Receiver  |                 Flysky fs-IA6B                 |
 
 # Usage
 
-Clone the repo, open `KEIL/ucosii.uvprojx` with Keil, build and load.
+## Windows
+
+Clone the repo, open `KEIL/quadcopter.uvprojx` with Keil uVision, build and load.
 

@@ -1,16 +1,16 @@
 #include "USART.h"
 
-static void NVIC_Configuration(void)
-{
-    NVIC_InitTypeDef NVIC_InitStructure;
+//static void NVIC_Configuration(void)
+//{
+//    NVIC_InitTypeDef NVIC_InitStructure;
 
-    // USART6 NVIC(中断控制器) 配置
-    NVIC_InitStructure.NVIC_IRQChannel                   = USART6_IRQn;  //串口1中断通道
-    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;            //抢占优先级1
-    NVIC_InitStructure.NVIC_IRQChannelSubPriority        = 1;            //子优先级1
-    NVIC_InitStructure.NVIC_IRQChannelCmd                = ENABLE;       // IRQ通道使能
-    NVIC_Init(&NVIC_InitStructure);                                      //根据指定的参数初始化NVIC寄存器、
-}
+//    // USART6 NVIC(中断控制器) 配置
+//    NVIC_InitStructure.NVIC_IRQChannel                   = USART6_IRQn;  //串口1中断通道
+//    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;            //抢占优先级1
+//    NVIC_InitStructure.NVIC_IRQChannelSubPriority        = 1;            //子优先级1
+//    NVIC_InitStructure.NVIC_IRQChannelCmd                = ENABLE;       // IRQ通道使能
+//    NVIC_Init(&NVIC_InitStructure);                                      //根据指定的参数初始化NVIC寄存器、
+//}
 
 void USART6_Config(void)
 {
@@ -62,10 +62,10 @@ void USART6_Config(void)
     USART_Init(USART6, &USART_InitStructure);
 
     /* 嵌套向量中断控制器 NVIC 配置 */
-//    NVIC_Configuration();
+    //    NVIC_Configuration();
 
     /* 使能串口接收中断 */
-//    USART_ITConfig(USART6, USART_IT_RXNE, ENABLE);
+    //    USART_ITConfig(USART6, USART_IT_RXNE, ENABLE);
 
     /* 使能串口 */
     USART_Cmd(USART6, ENABLE);

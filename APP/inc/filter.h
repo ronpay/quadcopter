@@ -1,14 +1,7 @@
 #pragma once
 
 #include "stm32f4xx.h"
-/*********************
- *
- *项目：森林火灾无人机
- *创建时间：2021.7.18
- *创建人：toeveryone_zxy
- *版本:v1.0
- *
- * *********************/
+
 typedef struct biquadFilter_s
 {
     float b0, b1, b2, a1, a2;

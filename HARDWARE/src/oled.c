@@ -40,36 +40,6 @@ void OLED_Config(void)
 }
 
 /**
- * @brief  I2C_WriteByte，向OLED寄存器地址写一个byte的数据
- * @param  addr：寄存器地址
- *					data：要写入的数据
- * @retval 无
- */
-// void I2C_WriteByte(uint8_t addr, uint8_t data) {
-//     while (I2C_GetFlagStatus(I2C3, I2C_FLAG_BUSY))
-//         ;
-
-//    I2C_GenerateSTART(I2C3, ENABLE);  //开启I2C3
-//    while (!I2C_CheckEvent(I2C3, I2C_EVENT_MASTER_MODE_SELECT))
-//        ; /*EV5,主模式*/
-
-//    I2C_Send7bitAddress(I2C3, OLED_ADDRESS,
-//                        I2C_Direction_Transmitter);  //器件地址 -- 默认0x78
-//    while (!I2C_CheckEvent(I2C3, I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED))
-//        ;
-
-//    I2C_SendData(I2C3, addr);  //寄存器地址
-//    while (!I2C_CheckEvent(I2C3, I2C_EVENT_MASTER_BYTE_TRANSMITTED))
-//        ;
-
-//    I2C_SendData(I2C3, data);  //发送数据
-//    while (!I2C_CheckEvent(I2C3, I2C_EVENT_MASTER_BYTE_TRANSMITTED))
-//        ;
-
-//    I2C_GenerateSTOP(I2C3, ENABLE);  //关闭I2C3总线
-//}
-
-/**
  * @brief  WriteCmd，向OLED写入命令
  * @param  I2C_Command：命令代码
  * @retval 无

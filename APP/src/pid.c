@@ -1,12 +1,3 @@
-/**
- * @file  		pid.c
- * @brief 		PID封装库
- * @author   	Haozhe Tang
- * @date     	2021-7-22
- * @version   	A001
- * @copyright 	Haozhe Tang
- */
-
 #include "pid.h"
 
 void PID_Init(p_PID_TYPE PID)
@@ -93,52 +84,7 @@ void Update_Err(p_PID_TYPE PID)
     //	printf("PID->ErrAccu %f\n", PID->ErrAccu);
 }
 
-int Limit(int target,int min,int max){
-	return target<min?min:(target>max?max:target);
+int Limit(int target, int min, int max)
+{
+    return target < min ? min : (target > max ? max : target);
 }
-/**********Ϊ������������λ����Э�鶨��ı���****************************/
-// cupΪС��ģʽ�洢��Ҳ�����ڴ洢��ʱ�򣬵�λ������0�ֽڣ���λ��1�ֽ�
-//  #define BYTE0(dwTemp)       (*(char *)(&dwTemp))	 //ȡ��int�ͱ����ĵ��ֽ�
-//  #define BYTE1(dwTemp)       (*((char *)(&dwTemp) + 1))	 //	ȡ�洢�ڴ˱�����һ�ڴ��ֽڵ����ݣ����ֽ�
-//  #define BYTE2(dwTemp)       (*((char *)(&dwTemp) + 2))
-//  #define BYTE3(dwTemp)       (*((char *)(&dwTemp) + 3))
-
-// void PID_DEBUG_ANO_Send(Target_Type target, Feedback_Type* real)
-// {
-// 	unsigned char data_to_send[23] = {0};
-// 	unsigned char i = 0;
-// 	unsigned char cnt = 0;
-// 	unsigned char sum = 0;
-
-// 	data_to_send[cnt++]=0x88;		 //֡ͷ��88
-// 	data_to_send[cnt++]=0xA2;	 	 //�����֣�OXFnֻ�������ݣ�����ʾͼ��0x0n��ʾ���ݺ�ͼ��
-// 	data_to_send[cnt++]=0;	     //��Ҫ�������ݵ��ֽ�������ʱ��0�������ڸ�ֵ��
-
-// 	data_to_send[cnt++] = BYTE3(target);	//���ֽ�
-// 	data_to_send[cnt++] = BYTE2(target);	//���ֽ�
-// 	data_to_send[cnt++] = BYTE1(target);	//���ֽ�
-// 	data_to_send[cnt++] = BYTE0(target);	//���ֽ�
-// 	data_to_send[cnt++] = BYTE3(*real);
-// 	data_to_send[cnt++] = BYTE2(*real);
-// 	data_to_send[cnt++] = BYTE1(*real);
-// 	data_to_send[cnt++] = BYTE0(*real);
-
-// 	data_to_send[cnt++] = BYTE3(*(real + 1));
-// 	data_to_send[cnt++] = BYTE2(*(real + 1));
-// 	data_to_send[cnt++] = BYTE1(*(real + 1));
-// 	data_to_send[cnt++] = BYTE0(*(real + 1));
-// 	data_to_send[cnt++] = 0;
-// 	data_to_send[cnt++] = 0;
-
-// 	data_to_send[cnt++] = 0;
-// 	data_to_send[cnt++] = 0;
-
-// 	data_to_send[2] = cnt - 3;//���������ݵ��ֽ�����
-
-// 	for(i=0;i<cnt;i++)
-// 		sum+=data_to_send[i];
-
-// 	data_to_send[cnt++] = sum;	//����У��λ
-
-// 	HAL_UART_Transmit(&huart1, data_to_send, cnt, 0xffff);
-// }

@@ -1,12 +1,3 @@
-/**
- * @file  		pid.h
- * @brief 		PID封装库头文件
- * @author   	Haozhe Tang
- * @date     	2021-7-22
- * @version   	A001
- * @copyright 	Haozhe Tang
- */
-
 #ifndef __PID_H
 #define __PID_H
 
@@ -24,19 +15,19 @@ typedef struct PID
     Feedback_Type Feedback;
     Feedback_Type LastFeedback;
     Feedback_Type PrevFeedback;
-    Error_Type    Err;           // �������
-    Error_Type    LastErr;       // �������
-    Error_Type    PrevErr;       // ���������
-    Error_Type    ErrDiff;       // �����������
-    Error_Type    ErrAccu;       // ����ۻ�ֵ
-    Error_Type    Err_Max;       // һ�ֵ�PID���ֻ���������ֵ
-    Error_Type    Accu_Err_Max;  // ���ֻ��ڵ����ֵ, �����޷�
+    Error_Type    Err;
+    Error_Type    LastErr;
+    Error_Type    PrevErr;
+    Error_Type    ErrDiff;
+    Error_Type    ErrAccu;
+    Error_Type    Err_Max;
+    Error_Type    Accu_Err_Max;
     Gain_Type     Kp;
     Gain_Type     Ki;
     Gain_Type     Kd;
-    Output_Type   Delta;       // ����PID���������
-    Output_Type   Output;      // λ��PID������PID�����
-    Output_Type   Output_Max;  // PID��������ֵ, ����޷�
+    Output_Type   Delta;
+    Output_Type   Output;
+    Output_Type   Output_Max;
     void (*Set_PID_Arg_Handler)(struct PID*, Gain_Type*);
     void (*Update_Target_Handler)(struct PID*);
     void (*Update_Feedback_Handler)(struct PID*);
@@ -57,5 +48,5 @@ void Update_Feedback(p_PID_TYPE PID);
 void Update_Err(p_PID_TYPE PID);
 
 void PID_DEBUG_ANO_Send(Target_Type target, Feedback_Type* real);
-int Limit(int target,int min,int max);
+int  Limit(int target, int min, int max);
 #endif /*__PID_H*/

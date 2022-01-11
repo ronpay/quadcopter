@@ -3,11 +3,6 @@
 
 #include "stm32f4xx.h"
 
-// extern u32 temp ;
-// extern float set ;
-// extern u8 TIM3CH1_CAPTURE_STA ; //输入捕获中断
-// extern u16 TIM3CH1_CAPTURE_VAL; //输入捕获值
-
 #define GENERAL_OCPWM_PIN_1 GPIO_Pin_0
 #define GENERAL_OCPWM_PIN_2 GPIO_Pin_1
 #define GENERAL_OCPWM_PIN_3 GPIO_Pin_2
